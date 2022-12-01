@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, CELL_SIZE, Images, imageSrcs, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { baseMap, CELL_SIZE, DRTS, Images, imageSrcs, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { initMap, Map } from "./objects/map";
 import { Player } from "./objects/player";
 import { flipHorizontal } from "./utils/common";
@@ -40,6 +40,8 @@ const render = (now: number = 0) => {
   material.uniforms.uTime.value = total;
 
   then = now;
+
+  player.update();
 
   context.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   map.render();
@@ -172,3 +174,57 @@ rendererCanvas.addEventListener("mousemove", (e) => {
 rendererCanvas.addEventListener("contextmenu", (e) => {
   e.preventDefault();
 });
+
+const keyboard = () => {
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      const key = e.key;
+
+      switch (key) {
+        case "ArrowLeft":
+          player.lrHold(DRTS.LEFT);
+          break;
+
+        case "ArrowRight":
+          player.lrHold(DRTS.RIGHT);
+          break;
+
+        case "ArrowUp":
+          player.upHold();
+          break;
+
+        default:
+          break;
+      }
+    },
+    false
+  );
+
+  document.addEventListener(
+    "keyup",
+    (e) => {
+      const key = e.key;
+
+      switch (key) {
+        case "ArrowLeft":
+          player.lrRelease(DRTS.LEFT);
+          break;
+
+        case "ArrowRight":
+          player.lrRelease(DRTS.RIGHT);
+          break;
+
+        case "ArrowUp":
+          player.upRelease();
+          break;
+
+        default:
+          break;
+      }
+    },
+    false
+  );
+};
+
+keyboard();
