@@ -28,6 +28,8 @@ canvas.height = SCREEN_HEIGHT;
 waterCanvas.width = SCREEN_WIDTH;
 waterCanvas.height = SCREEN_HEIGHT / 2;
 
+let texture2: any;
+
 const render = (now: number = 0) => {
   if (!then) then = now;
 
@@ -63,8 +65,10 @@ const init = async () => {
 
   map = new Map(context, baseMap);
 
+  texture2 = new THREE.CanvasTexture(canvas);
+
   material2 = new THREE.MeshBasicMaterial({
-    map: new THREE.CanvasTexture(canvas),
+    map: texture2,
   });
   mesh = new THREE.Mesh(new THREE.PlaneGeometry(8, 4.8, 1, 1), material2);
   mesh.position.set(0, 1.2, 0);
@@ -109,8 +113,9 @@ const drawMap = (e: MouseEvent) => {
   baseMap[y][x] = newValue;
   map.init(baseMap);
 
-  material2.map = new THREE.CanvasTexture(canvas);
-  material.uniforms.uTexture.value = new THREE.CanvasTexture(waterCanvas);
+  texture2.needsUpdate = true;
+  // material2.map = new THREE.CanvasTexture(canvas);
+  // material.uniforms.uTexture.value = new THREE.CanvasTexture(waterCanvas);
 };
 
 rendererCanvas.addEventListener("mousedown", (e) => {
