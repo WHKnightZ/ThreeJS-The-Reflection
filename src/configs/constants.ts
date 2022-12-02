@@ -23,10 +23,7 @@ export const MAP_MAX_Y = 30;
 export const VELOCITY_DEFAULT = 16.0;
 export const VELOCITY_MIN = -24.0;
 
-export const START_X = 0;
-export const START_Y = 0;
-export const CELL_SIZE = 16
-;
+export const CELL_SIZE = 16;
 
 export const INTERVAL = 25;
 

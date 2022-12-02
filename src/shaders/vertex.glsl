@@ -36,9 +36,9 @@ void main() {
     vec3 pos = position;
 
     float noiseFreq = 1.2f;
-    float noiseAmp = 1.6f;
+    float noiseAmp = 1.6f - abs(uv.x - 0.5f) * 1.5f;
     float speedAmp = 1.0f;
-    
+
     vec3 noisePos = vec3(pos.x * noiseFreq + uTime * speedAmp, pos.y, pos.z);
     pos.z += noise(noisePos) * noiseAmp;
 

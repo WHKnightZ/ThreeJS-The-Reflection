@@ -1,4 +1,4 @@
-import { CELL_SIZE, DRTS, baseMap as map, offset, START_X, START_Y, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT } from "../configs/constants";
+import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT } from "../configs/constants";
 
 export class Player {
   context: CanvasRenderingContext2D;
@@ -24,7 +24,7 @@ export class Player {
 
     this.textures = textures;
     this.x = 200;
-    this.y = 100;
+    this.y = 400;
     this.v = 0;
     this.g = -1;
     this.t = 0;
@@ -55,14 +55,14 @@ export class Player {
     // Check stop fall when the player is falling (this.v < 0)
     if (this.v <= 0) {
       // col_left and col_right of player
-      const col_left = Math.floor((this.x - START_X - 9) / CELL_SIZE);
-      const col_right = Math.floor((this.x - START_X + 9) / CELL_SIZE);
-      const row_old = Math.floor((y_old - START_Y) / CELL_SIZE);
-      const row = Math.floor((this.y - START_Y) / CELL_SIZE);
+      const col_left = Math.floor((this.x - 9) / CELL_SIZE);
+      const col_right = Math.floor((this.x + 9) / CELL_SIZE);
+      const row_old = Math.floor(y_old / CELL_SIZE);
+      const row = Math.floor(this.y / CELL_SIZE);
       // If foot left or right of player is wall => stop fall
       if (!map[row_old][col_left] && !map[row_old][col_right] && (map[row][col_left] || map[row][col_right])) {
         this.isJumping = false;
-        this.y = (row + 1) * CELL_SIZE + START_Y;
+        this.y = (row + 1) * CELL_SIZE;
         this.v = 0;
       }
     }
@@ -71,16 +71,16 @@ export class Player {
     const offset_ = offset[this.drt];
 
     if (this.isRunning) {
-      const x_middle = Math.floor(this.x / 32);
-      const x_edge = Math.floor((this.x + 18 * offset_) / 32);
-      const y_top = Math.floor((this.y + 1) / 32);
-      const y_bottom = Math.floor((this.y + 1) / 32);
+      const x_middle = Math.floor(this.x / CELL_SIZE);
+      const x_edge = Math.floor((this.x + 12 * offset_) / CELL_SIZE);
+      const y_top = Math.floor((this.y + 1) / CELL_SIZE);
+      const y_bottom = Math.floor((this.y + 1) / CELL_SIZE);
       // If player is running, check new position has the wall or not, if not, translate position by offset
       if (map[y_top][x_middle] == 1 || (map[y_top][x_edge] == 0 && map[y_bottom][x_edge] == 0)) {
         this.x += 4 * offset_;
       } else {
         // Otherwise, hold in position
-        this.x = x_edge * 32 - 15 * offset_ + 32 * (1 - this.drt);
+        this.x = x_edge * CELL_SIZE - 9 * offset_ + CELL_SIZE * (1 - this.drt);
       }
     }
 
@@ -107,7 +107,7 @@ export class Player {
   }
 
   render() {
-    this.context.drawImage(this.textures[this.drt][this.stt][this.anim], this.x - 32, SCREEN_HEIGHT - this.y - 64, 64, 64);
+    this.context.drawImage(this.textures[this.drt][this.stt][this.anim], this.x - 24, SCREEN_HEIGHT - this.y - 48, 48, 48);
   }
 
   lrHold(drt: number) {

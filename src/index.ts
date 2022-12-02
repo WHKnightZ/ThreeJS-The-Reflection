@@ -49,6 +49,10 @@ const render = (now: number = 0) => {
   waterContext.drawImage(canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
   stats.update();
+
+  texture.needsUpdate = true;
+  waterTexture.needsUpdate = true;
+
   renderer.render(scene, camera);
 
   requestAnimationFrame(render);
@@ -149,9 +153,6 @@ const drawMap = (e: MouseEvent) => {
 
   baseMap[y][x] = newValue;
   map.init(baseMap);
-
-  texture.needsUpdate = true;
-  waterTexture.needsUpdate = true;
 };
 
 rendererCanvas.addEventListener("mousedown", (e) => {
