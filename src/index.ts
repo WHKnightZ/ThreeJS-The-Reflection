@@ -20,7 +20,8 @@ let mesh: THREE.Mesh;
 let map: Map;
 let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
-let player: Player;
+let mainPlayer: Player;
+let reflectedPlayer: Player;
 
 const canvas = document.createElement("canvas");
 const context = canvas.getContext("2d");
@@ -41,11 +42,15 @@ const render = (now: number = 0) => {
 
   then = now;
 
-  player.update();
+  mainPlayer.update();
+  reflectedPlayer.update();
 
   context.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   map.render();
-  player.render();
+
+  mainPlayer.render();
+  reflectedPlayer.render();
+
   waterContext.drawImage(canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
   stats.update();
@@ -88,7 +93,8 @@ const init = async () => {
     ],
   ];
 
-  player = new Player(context, textures);
+  mainPlayer = new Player(200, 400, false, context, textures);
+  reflectedPlayer = new Player(400, 400, false, context, textures);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: rendererCanvas });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -184,15 +190,18 @@ const keyboard = () => {
 
       switch (key) {
         case "ArrowLeft":
-          player.lrHold(DRTS.LEFT);
+          mainPlayer.lrHold(DRTS.LEFT);
+          reflectedPlayer.lrHold(DRTS.LEFT);
           break;
 
         case "ArrowRight":
-          player.lrHold(DRTS.RIGHT);
+          mainPlayer.lrHold(DRTS.RIGHT);
+          reflectedPlayer.lrHold(DRTS.RIGHT);
           break;
 
         case "ArrowUp":
-          player.upHold();
+          mainPlayer.upHold();
+          reflectedPlayer.upHold();
           break;
 
         default:
@@ -209,15 +218,18 @@ const keyboard = () => {
 
       switch (key) {
         case "ArrowLeft":
-          player.lrRelease(DRTS.LEFT);
+          mainPlayer.lrRelease(DRTS.LEFT);
+          reflectedPlayer.lrRelease(DRTS.LEFT);
           break;
 
         case "ArrowRight":
-          player.lrRelease(DRTS.RIGHT);
+          mainPlayer.lrRelease(DRTS.RIGHT);
+          reflectedPlayer.lrRelease(DRTS.RIGHT);
           break;
 
         case "ArrowUp":
-          player.upRelease();
+          mainPlayer.upRelease();
+          reflectedPlayer.upRelease();
           break;
 
         default:

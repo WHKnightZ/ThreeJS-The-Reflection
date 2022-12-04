@@ -19,12 +19,12 @@ export class Player {
 
   textures: any[][][];
 
-  constructor(context: CanvasRenderingContext2D, textures: any[][][]) {
+  constructor(x: number, y: number, isRefleted: boolean, context: CanvasRenderingContext2D, textures: any[][][]) {
     this.context = context;
 
     this.textures = textures;
-    this.x = 200;
-    this.y = 400;
+    this.x = x;
+    this.y = y;
     this.v = 0;
     this.g = -1;
     this.t = 0;
