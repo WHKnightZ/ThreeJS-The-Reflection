@@ -1,4 +1,41 @@
-import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT } from "../configs/constants";
+import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, imageSrcs, Images } from "../configs/constants";
+import { flipHorizontal, flipVertical } from "../utils/common";
+
+let textures: any[][][][];
+
+export const initPlayer = async () => {
+  const rightImages: Images = { ...imageSrcs };
+  const leftImages: Images = { ...imageSrcs };
+
+  const loadImage = (key: string, src: string) => {
+    const image = new Image();
+    (rightImages as any)[key] = image;
+    image.src = `/static/images/${src}.png`;
+    return new Promise((res) => (image.onload = () => res(image)));
+  };
+
+  await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
+  const keys = Object.keys(rightImages);
+  (await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key])))).forEach((image, index) => {
+    (leftImages as any)[keys[index]] = image;
+  });
+
+  const mainTextures = [
+    [
+      [leftImages.stand0, leftImages.stand1, leftImages.stand2, leftImages.stand1],
+      [leftImages.run0, leftImages.run1, leftImages.run2, leftImages.run1],
+      [leftImages.jump0, leftImages.jump1],
+    ],
+    [
+      [rightImages.stand0, rightImages.stand1, rightImages.stand2, rightImages.stand1],
+      [rightImages.run0, rightImages.run1, rightImages.run2, rightImages.run1],
+      [rightImages.jump0, rightImages.jump1],
+    ],
+  ];
+  const reflectedTextures = await Promise.all(mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map(flipVertical))))));
+
+  textures = [mainTextures, reflectedTextures];
+};
 
 export class Player {
   context: CanvasRenderingContext2D;
@@ -16,13 +53,15 @@ export class Player {
   isRunning: boolean;
   isJumping: boolean;
   isHoldingUp: boolean;
+  isReflected: boolean;
 
   textures: any[][][];
 
-  constructor(x: number, y: number, isRefleted: boolean, context: CanvasRenderingContext2D, textures: any[][][]) {
+  constructor(x: number, y: number, isRefleted: boolean, context: CanvasRenderingContext2D) {
     this.context = context;
+    this.isReflected = isRefleted;
 
-    this.textures = textures;
+    this.textures = textures[isRefleted ? 1 : 0];
     this.x = x;
     this.y = y;
     this.v = 0;
@@ -42,23 +81,23 @@ export class Player {
       this.anim = 0;
     }
 
-    const y_old = this.y;
-
     // Every consterval, velocity increase by gravity
     this.v += this.g;
 
     // Set max value of velocity
     if (this.v < VELOCITY_MIN) this.v = VELOCITY_MIN;
 
+    const yOld = this.isReflected ? this.y : 480 - this.y;
     this.y += this.v;
+    let yNew = this.isReflected ? this.y : 480 - this.y;
 
     // Check stop fall when the player is falling (this.v < 0)
     if (this.v <= 0) {
       // col_left and col_right of player
       const col_left = Math.floor((this.x - 9) / CELL_SIZE);
       const col_right = Math.floor((this.x + 9) / CELL_SIZE);
-      const row_old = Math.floor(y_old / CELL_SIZE);
-      const row = Math.floor(this.y / CELL_SIZE);
+      const row_old = Math.floor(yOld / CELL_SIZE);
+      const row = Math.floor(yNew / CELL_SIZE);
       // If foot left or right of player is wall => stop fall
       if (!map[row_old][col_left] && !map[row_old][col_right] && (map[row][col_left] || map[row][col_right])) {
         this.isJumping = false;
@@ -67,14 +106,16 @@ export class Player {
       }
     }
 
+    yNew = this.isReflected ? this.y : 480 - this.y;
+
     // Get new position of player when run to left or right (old position + offset)
     const offset_ = offset[this.drt];
 
     if (this.isRunning) {
       const x_middle = Math.floor(this.x / CELL_SIZE);
       const x_edge = Math.floor((this.x + 12 * offset_) / CELL_SIZE);
-      const y_top = Math.floor((this.y + 1) / CELL_SIZE);
-      const y_bottom = Math.floor((this.y + 1) / CELL_SIZE);
+      const y_top = Math.floor((yNew + 1) / CELL_SIZE);
+      const y_bottom = Math.floor((yNew + 1) / CELL_SIZE);
       // If player is running, check new position has the wall or not, if not, translate position by offset
       if (map[y_top][x_middle] == 1 || (map[y_top][x_edge] == 0 && map[y_bottom][x_edge] == 0)) {
         this.x += 4 * offset_;
@@ -107,7 +148,8 @@ export class Player {
   }
 
   render() {
-    this.context.drawImage(this.textures[this.drt][this.stt][this.anim], this.x - 24, SCREEN_HEIGHT - this.y - 48, 48, 48);
+    const newY = this.isReflected ? SCREEN_HEIGHT - (480 - this.y) : SCREEN_HEIGHT - this.y - 48;
+    this.context.drawImage(this.textures[this.drt][this.stt][this.anim], this.x - 24, newY, 48, 48);
   }
 
   lrHold(drt: number) {

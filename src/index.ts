@@ -1,9 +1,8 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, CELL_SIZE, DRTS, Images, imageSrcs, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { baseMap, CELL_SIZE, DRTS, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { initMap, Map } from "./objects/map";
-import { Player } from "./objects/player";
-import { flipHorizontal } from "./utils/common";
+import { initPlayer, Player } from "./objects/player";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -64,37 +63,12 @@ const render = (now: number = 0) => {
 };
 
 const init = async () => {
-  const rightImages: Images = { ...imageSrcs };
-  const leftImages: Images = { ...imageSrcs };
+  // Loading ...
+  await Promise.all([initMap(), initPlayer()]);
+  // Loaded
 
-  const loadImage = (key: string, src: string) => {
-    const image = new Image();
-    (rightImages as any)[key] = image;
-    image.src = `/static/images/${src}.png`;
-    return new Promise((res) => (image.onload = () => res(image)));
-  };
-
-  await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
-  const keys = Object.keys(rightImages);
-  (await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key])))).forEach((image, index) => {
-    (leftImages as any)[keys[index]] = image;
-  });
-
-  const textures = [
-    [
-      [leftImages.stand0, leftImages.stand1, leftImages.stand2, leftImages.stand1],
-      [leftImages.run0, leftImages.run1, leftImages.run2, leftImages.run1],
-      [leftImages.jump0, leftImages.jump1],
-    ],
-    [
-      [rightImages.stand0, rightImages.stand1, rightImages.stand2, rightImages.stand1],
-      [rightImages.run0, rightImages.run1, rightImages.run2, rightImages.run1],
-      [rightImages.jump0, rightImages.jump1],
-    ],
-  ];
-
-  mainPlayer = new Player(200, 400, false, context, textures);
-  reflectedPlayer = new Player(400, 400, false, context, textures);
+  mainPlayer = new Player(200, 400, false, context);
+  reflectedPlayer = new Player(400, 400, true, context);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, canvas: rendererCanvas });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -105,8 +79,6 @@ const init = async () => {
 
   camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   camera.position.set(0, 0, 15);
-
-  await initMap();
 
   map = new Map(context, baseMap);
 
