@@ -94,16 +94,23 @@ export class Player {
     // Check stop fall when the player is falling (this.v < 0)
     if (this.v <= 0) {
       // col_left and col_right of player
-      const col_left = Math.floor((this.x - 9) / CELL_SIZE);
-      const col_right = Math.floor((this.x + 9) / CELL_SIZE);
-      const row_old = Math.floor(yOld / CELL_SIZE);
-      const row = Math.floor(yNew / CELL_SIZE);
+      const col_left = Math.floor((this.x - 5) / CELL_SIZE);
+      const col_right = Math.floor((this.x + 5) / CELL_SIZE);
+      let row = Math.floor(yNew / CELL_SIZE);
+
       // If foot left or right of player is wall => stop fall
-      if (!map[row_old][col_left] && !map[row_old][col_right] && (map[row][col_left] || map[row][col_right])) {
+      if (map[row]?.[col_left] || map[row]?.[col_right]) {
         this.isJumping = false;
-        this.y = (row + 1) * CELL_SIZE;
+
+        row += 1;
+
+        // do {
+        //   row += 1;
+        // } while (map[row]?.[col_left] === 1 || map[row]?.[col_right] === 1);
+
+        this.y = row * CELL_SIZE;
         this.v = 0;
-      }
+      } else this.isJumping = true;
     }
 
     yNew = this.isReflected ? this.y : 480 - this.y;
@@ -113,11 +120,11 @@ export class Player {
 
     if (this.isRunning) {
       const x_middle = Math.floor(this.x / CELL_SIZE);
-      const x_edge = Math.floor((this.x + 12 * offset_) / CELL_SIZE);
-      const y_top = Math.floor((yNew + 1) / CELL_SIZE);
+      const x_edge = Math.floor((this.x + 10 * offset_) / CELL_SIZE);
+      const y_top = Math.floor((yNew + 12) / CELL_SIZE);
       const y_bottom = Math.floor((yNew + 1) / CELL_SIZE);
       // If player is running, check new position has the wall or not, if not, translate position by offset
-      if (map[y_top][x_middle] == 1 || (map[y_top][x_edge] == 0 && map[y_bottom][x_edge] == 0)) {
+      if (map[y_top]?.[x_middle] === 1 || (map[y_top]?.[x_edge] === 0 && map[y_bottom]?.[x_edge] === 0)) {
         this.x += 4 * offset_;
       } else {
         // Otherwise, hold in position
