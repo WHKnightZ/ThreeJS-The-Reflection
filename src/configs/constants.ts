@@ -21,7 +21,7 @@ export type Images = { [Property in keyof typeof imageSrcs]: any };
 export const MAP_MAX_X = 50;
 export const MAP_MAX_Y = 30;
 export const VELOCITY_DEFAULT = 16.0;
-export const VELOCITY_MIN = -24.0;
+export const VELOCITY_MIN = -16.0;
 
 export const CELL_SIZE = 16;
 

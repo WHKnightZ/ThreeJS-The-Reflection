@@ -1,4 +1,4 @@
-import { CELL_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from "../configs/constants";
+import { CELL_SIZE } from "../configs/constants";
 
 const parts = {
   middle: [0, 16, 16, 16],
@@ -22,8 +22,6 @@ const mapPart: MapPartType = {} as any;
 
 const mapImage = {};
 
-let imgBG: any;
-
 const createCanvas = (width = CELL_SIZE, height = CELL_SIZE) => {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -40,13 +38,6 @@ const createCanvas = (width = CELL_SIZE, height = CELL_SIZE) => {
 
 export const initMap = async () => {
   const promises = [];
-  imgBG = new Image();
-  imgBG.src = "/static/images/background.png";
-  await new Promise((res) => {
-    imgBG.onload = () => {
-      res(null);
-    };
-  });
 
   const images = new Image();
   images.src = "/static/images/tiles.png";
@@ -178,8 +169,6 @@ export class Map {
   }
 
   render() {
-    this.context.drawImage(imgBG, imgBG.width / 3.2, 0, (imgBG.height * SCREEN_WIDTH) / SCREEN_HEIGHT, imgBG.height, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
     this.map.forEach((m1, i) => {
       m1.forEach((m2, j) => {
         if (m2 !== -1) {

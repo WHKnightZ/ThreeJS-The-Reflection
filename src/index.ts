@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { baseMap, CELL_SIZE, DRTS, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { Background } from "./objects/background";
 import { initMap, Map } from "./objects/map";
 import { initPlayer, Player } from "./objects/player";
 
@@ -16,6 +17,7 @@ let then: any;
 let total = 0;
 let material: THREE.ShaderMaterial;
 let mesh: THREE.Mesh;
+let background: Background;
 let map: Map;
 let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
@@ -45,6 +47,7 @@ const render = (now: number = 0) => {
   reflectedPlayer.update();
 
   context.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  background.render();
   map.render();
 
   mainPlayer.render();
@@ -64,7 +67,8 @@ const render = (now: number = 0) => {
 
 const init = async () => {
   // Loading ...
-  await Promise.all([initMap(), initPlayer()]);
+  background = new Background(context);
+  await Promise.all([background.init(), initMap(), initPlayer()]);
   // Loaded
 
   mainPlayer = new Player(200, 400, false, context);
