@@ -1,4 +1,6 @@
-import { CELL_SIZE } from "../configs/constants";
+import { CELL_SIZE, game } from "../configs/constants";
+import { getImageSrc } from "../utils/common";
+import { Obj } from "./object";
 
 const parts = {
   middle: [0, 16, 16, 16],
@@ -40,7 +42,7 @@ export const initMap = async () => {
   const promises = [];
 
   const images = new Image();
-  images.src = "/static/images/tiles.png";
+  images.src = getImageSrc("tiles");
   await new Promise((res) => {
     images.onload = async () => {
       await Promise.all(
@@ -141,12 +143,11 @@ const points = [
   { direction: [-1, -1], point: 128 },
 ];
 
-export class Map {
-  context: CanvasRenderingContext2D;
+export class Map extends Obj {
   map: number[][];
 
-  constructor(context: CanvasRenderingContext2D, map: number[][]) {
-    this.context = context;
+  constructor(map: number[][]) {
+    super();
     this.init(map);
   }
 
@@ -172,7 +173,7 @@ export class Map {
     this.map.forEach((m1, i) => {
       m1.forEach((m2, j) => {
         if (m2 !== -1) {
-          this.context.drawImage(mapImage[m2] || mapImage[0], j * CELL_SIZE, i * CELL_SIZE);
+          game.context.drawImage(mapImage[m2] || mapImage[0], j * CELL_SIZE, i * CELL_SIZE);
         }
       });
     });
