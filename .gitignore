@@ -1,5 +1,6 @@
 /node_modules
 /static/js
+/static/styles
 
 yarn.lock
 package-lock.json

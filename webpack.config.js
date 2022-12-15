@@ -1,7 +1,8 @@
 const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  entry: "./src/index.ts",
+  entry: ["./src/index.ts", "./src/styles/index.scss"],
   module: {
     rules: [
       {
@@ -13,6 +14,11 @@ module.exports = {
         test: /\.glsl$/,
         loader: "webpack-glsl-loader",
       },
+      {
+        test: /\.(sa|sc)ss$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        exclude: /node_modules/,
+      },
     ],
   },
   resolve: {
@@ -22,4 +28,9 @@ module.exports = {
     filename: "index.js",
     path: path.resolve(__dirname, "static/js"),
   },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "../styles/index.css",
+    }),
+  ],
 };

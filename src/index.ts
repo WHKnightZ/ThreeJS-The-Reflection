@@ -35,6 +35,10 @@ let isRightMouse = false;
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
 
+let oldPos: number;
+let x: number = 0;
+let x2: number = 0;
+
 const render = (now: number = 0) => {
   if (!then) then = now;
 
@@ -55,6 +59,7 @@ const render = (now: number = 0) => {
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
+  game.scene.position.setX((x + x2) / 200);
   game.renderer.render(game.scene, game.camera);
 
   requestAnimationFrame(render);
@@ -79,6 +84,7 @@ const drawMap = (e: MouseEvent) => {
 
 const registerMouseEvents = () => {
   rendererCanvas.addEventListener("mousedown", (e) => {
+    oldPos = e.x;
     isDragging = true;
     isRightMouse = e.button === 2;
 
@@ -86,13 +92,19 @@ const registerMouseEvents = () => {
   });
 
   rendererCanvas.addEventListener("mouseup", () => {
+    x = x + x2;
+    x2 = 0;
     isDragging = false;
   });
 
   rendererCanvas.addEventListener("mousemove", (e) => {
     if (!isDragging) return;
 
-    drawMap(e);
+    const offset = e.x - oldPos;
+
+    x2 = offset;
+
+    // drawMap(e);
   });
 
   rendererCanvas.addEventListener("contextmenu", (e) => {
@@ -208,7 +220,7 @@ const init = async () => {
   game.scene.add(mesh);
 
   // Objects
-  trees = [new Tree("treePalmSmall", 12, 12), new Tree("treePalm", 18, 14), new Tree("treeCactus", 25, 13), new Tree("treeCactusSmall", 36, 13)];
+  trees = [new Tree("treePalmSmall", 12, 11), new Tree("treePalm", 18, 13), new Tree("treeCactus", 25, 13), new Tree("treeCactusSmall", 36, 13)];
   map = new Map(baseMap);
   mainPlayer = new Player(200, 400, false);
   reflectedPlayer = new Player(400, 400, true);
