@@ -83,7 +83,8 @@ const drawMap = (e: MouseEvent) => {
 };
 
 const registerMouseEvents = () => {
-  rendererCanvas.addEventListener("mousedown", (e) => {
+  window.addEventListener("mousedown", (e) => {
+    if (!rendererCanvas.contains(e.target as any)) return;
     oldPos = e.x;
     isDragging = true;
     isRightMouse = e.button === 2;
@@ -91,13 +92,13 @@ const registerMouseEvents = () => {
     drawMap(e);
   });
 
-  rendererCanvas.addEventListener("mouseup", () => {
+  window.addEventListener("mouseup", () => {
     x = x + x2;
     x2 = 0;
     isDragging = false;
   });
 
-  rendererCanvas.addEventListener("mousemove", (e) => {
+  window.addEventListener("mousemove", (e) => {
     if (!isDragging) return;
 
     const offset = e.x - oldPos;
@@ -107,7 +108,7 @@ const registerMouseEvents = () => {
     // drawMap(e);
   });
 
-  rendererCanvas.addEventListener("contextmenu", (e) => {
+  window.addEventListener("contextmenu", (e) => {
     e.preventDefault();
   });
 };
