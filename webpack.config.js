@@ -22,7 +22,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js", ".ts"],
+    extensions: [".js", ".ts", ".html"],
   },
   output: {
     filename: "index.js",
@@ -33,4 +33,14 @@ module.exports = {
       filename: "../styles/index.css",
     }),
   ],
+  devServer: {
+    static: {
+      directory: "./",
+    },
+    compress: true,
+    port: 3000,
+    devMiddleware: {
+      writeToDisk: true,
+    },
+  },
 };
