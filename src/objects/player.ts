@@ -1,55 +1,6 @@
+import { playerTextures } from "../common/textures";
 import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game } from "../configs/constants";
-import { flipHorizontal, flipVertical, getImageSrc } from "../utils/common";
 import { Obj } from "./object";
-
-const imageSrcs = {
-  jump0: "jump-0",
-  jump1: "jump-1",
-  stand0: "stand-0",
-  stand1: "stand-1",
-  stand2: "stand-2",
-  run0: "run-0",
-  run1: "run-1",
-  run2: "run-2",
-};
-
-type Images = { [Property in keyof typeof imageSrcs]: any };
-
-let textures: any[][][][];
-
-export const initPlayer = async () => {
-  const rightImages: Images = { ...imageSrcs };
-  const leftImages: Images = { ...imageSrcs };
-
-  const loadImage = (key: string, src: string) => {
-    const image = new Image();
-    (rightImages as any)[key] = image;
-    image.src = getImageSrc(src);
-    return new Promise((res) => (image.onload = () => res(image)));
-  };
-
-  await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
-  const keys = Object.keys(rightImages);
-  (await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key])))).forEach((image, index) => {
-    (leftImages as any)[keys[index]] = image;
-  });
-
-  const mainTextures = [
-    [
-      [leftImages.stand0, leftImages.stand1, leftImages.stand2, leftImages.stand1],
-      [leftImages.run0, leftImages.run1, leftImages.run2, leftImages.run1],
-      [leftImages.jump0, leftImages.jump1],
-    ],
-    [
-      [rightImages.stand0, rightImages.stand1, rightImages.stand2, rightImages.stand1],
-      [rightImages.run0, rightImages.run1, rightImages.run2, rightImages.run1],
-      [rightImages.jump0, rightImages.jump1],
-    ],
-  ];
-  const reflectedTextures = await Promise.all(mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map(flipVertical))))));
-
-  textures = [mainTextures, reflectedTextures];
-};
 
 export class Player extends Obj {
   x: number;
@@ -72,7 +23,7 @@ export class Player extends Obj {
     super();
     this.isReflected = isRefleted;
 
-    this.textures = textures[isRefleted ? 1 : 0];
+    this.textures = playerTextures[isRefleted ? 1 : 0];
     this.x = x;
     this.y = y;
     this.v = 0;

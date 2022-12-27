@@ -54,4 +54,4 @@ export const resize = (image: HTMLImageElement, scale = 1) => {
   return new Promise((res) => (image.onload = () => res(image)));
 };
 
-export const getImageSrc = (src: string, ext: "png" | "jpg" = "png") => `/static/images/${src}.${ext}`;
+export const getImageSrc = (src: string, ext: "png" | "jpg" | "svg" = "png") => `/static/images/${src}.${ext}`;

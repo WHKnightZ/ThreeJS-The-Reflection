@@ -1,22 +1,24 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
 import { baseMap, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
-import { Background } from "./objects/background";
-import { initMap, Map } from "./objects/map";
-import { Obj } from "./objects/object";
-import { initPlayer, Player } from "./objects/player";
-import { initTree, Tree } from "./objects/tree";
+import { Loading } from "./common/loading";
+import { loadTextures, mappingTiles, playerTextures, treeTextures } from "./common/textures";
+import { Background, Map, Obj, Player, Tree } from "./objects";
+import { getImageSrc } from "./utils/common";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
 
 const rendererCanvas = document.getElementById("canvas") as HTMLCanvasElement;
+rendererCanvas.width = SCREEN_WIDTH;
+rendererCanvas.height = SCREEN_HEIGHT;
 
 // Timer
 let then: any;
 let total = 0;
 
 // Object
+let loading: Loading;
 let material: THREE.ShaderMaterial;
 let mesh: THREE.Mesh;
 let background: Background;
@@ -171,28 +173,56 @@ const registerKeyboardEvents = () => {
   );
 };
 
-const init = async () => {
-  // Loading ...
-  background = new Background();
-  await Promise.all([background.init(), initMap(), initPlayer(), initTree()]);
-  // Loaded
+const createControlPanel = () => {
+  const createElement = (img: HTMLImageElement, parent: HTMLElement, onClick: () => void) => {
+    const element = img.cloneNode();
+    parent.appendChild(element);
+  };
+  const cpPlayer = document.getElementById("cp-player");
+  createElement(playerTextures[0][0][0][0], cpPlayer, () => {});
+  createElement(playerTextures[0][1][0][0], cpPlayer, () => {});
+  const cpObjects = document.getElementById("cp-objects");
+  createElement(mappingTiles[0], cpObjects, () => {});
+  const cpTrees = document.getElementById("cp-trees");
+  createElement(treeTextures.treeCactus, cpTrees, () => {});
+  createElement(treeTextures.treeCactusSmall, cpTrees, () => {});
+  createElement(treeTextures.treePalm, cpTrees, () => {});
+  createElement(treeTextures.treePalmSmall, cpTrees, () => {});
+  const cpTools = document.getElementById("cp-tools");
+  const hand = new Image();
+  hand.src = getImageSrc("hand");
+  createElement(hand, cpTools, () => {});
+};
 
+const init = async () => {
   game.canvas = document.createElement("canvas");
   game.context = game.canvas.getContext("2d");
   game.canvas.width = SCREEN_WIDTH;
   game.canvas.height = SCREEN_HEIGHT;
   waterCanvas.width = SCREEN_WIDTH;
   waterCanvas.height = SCREEN_HEIGHT / 2;
-
   game.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: rendererCanvas });
   game.renderer.setPixelRatio(window.devicePixelRatio);
   game.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-  game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
-
   game.scene = new THREE.Scene();
-
+  game.scene.background = new THREE.Color("#a5ebcc");
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
+
+  loading = new Loading();
+
+  // Loading ...
+  loading.begin();
+  await loadTextures();
+  // Loaded
+  // await new Promise((resolve) => setTimeout(() => resolve(null), 100000));
+  loading.end();
+
+  createControlPanel();
+
+  game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
+
+  background = new Background();
 
   texture = new THREE.CanvasTexture(game.canvas);
 
