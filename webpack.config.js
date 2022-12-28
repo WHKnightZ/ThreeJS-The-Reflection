@@ -40,7 +40,9 @@ module.exports = {
     compress: true,
     port: 3000,
     devMiddleware: {
-      writeToDisk: true,
+      writeToDisk: (filePath) => {
+        return !/hot-update/i.test(filePath);
+      },
     },
   },
 };

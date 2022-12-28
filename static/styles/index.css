@@ -15,6 +15,29 @@ body {
   height: 100%;
 }
 
+button {
+  cursor: pointer;
+  outline: none !important;
+  border: none;
+  background-color: #f9eab0;
+  color: #0f1009;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+button:hover {
+  background-color: #fad98f;
+}
+button i {
+  margin-left: 8px;
+  font-size: 17px;
+}
+
 #canvas {
   border: 3px solid #963b1c;
   image-rendering: pixelated;
@@ -50,4 +73,14 @@ body {
   object-fit: scale-down;
   background-color: #92ebd3;
   border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+#control-panel .cp-wrapper > div img.selected {
+  background-color: #5cd0e4;
+}
+#control-panel .cp-buttons {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  margin-top: 12px;
 }

@@ -1,4 +1,10 @@
-export { default as baseMap } from "../maps/1.json";
+import { Obj } from "../objects/object";
+
+import mapInfo from "../maps/1.json";
+
+const { baseMap, trees: treesInfo, players: playersInfo } = mapInfo;
+
+export { baseMap, treesInfo, playersInfo };
 
 export const APP_NAME = "The Reflection";
 
@@ -27,4 +33,14 @@ export enum STTS {
 
 export const offset = [-1, 1];
 
-export const game: { renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; canvas: HTMLCanvasElement; context: CanvasRenderingContext2D } = {} as any;
+export const game: {
+  renderer: THREE.WebGLRenderer;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  rendererCanvas: HTMLCanvasElement;
+  mouse: { x: number; y: number; isDragging: boolean; isRightMouse: boolean };
+} = {} as any;
+
+export const objs: Obj[] = [];

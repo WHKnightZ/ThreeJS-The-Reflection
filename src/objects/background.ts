@@ -7,6 +7,7 @@ export class Background extends Obj {
 
   constructor() {
     super();
+    this.priority = 0;
     this.img = backgroundTexture;
   }
 

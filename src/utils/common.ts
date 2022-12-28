@@ -1,4 +1,4 @@
-import { APP_NAME } from "../configs/constants";
+import { APP_NAME, SCREEN_HEIGHT } from "../configs/constants";
 
 export const getAppName = () => APP_NAME;
 
@@ -55,3 +55,5 @@ export const resize = (image: HTMLImageElement, scale = 1) => {
 };
 
 export const getImageSrc = (src: string, ext: "png" | "jpg" | "svg" = "png") => `/static/images/${src}.${ext}`;
+
+export const checkIsReflected = (y: number) => y > SCREEN_HEIGHT / 2;

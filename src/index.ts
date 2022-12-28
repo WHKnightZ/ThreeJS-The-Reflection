@@ -1,10 +1,12 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { baseMap, DRTS, game, objs, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
 import { Loading } from "./common/loading";
-import { loadTextures, mappingTiles, playerTextures, treeTextures } from "./common/textures";
-import { Background, Map, Obj, Player, Tree } from "./objects";
-import { getImageSrc } from "./utils/common";
+import { loadTextures } from "./common/textures";
+import { Background, Map, Player, Tree } from "./objects";
+import { createControlPanel, selectedControl } from "./common/controlPanel";
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { map } from "./common/map";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -17,22 +19,15 @@ rendererCanvas.height = SCREEN_HEIGHT;
 let then: any;
 let total = 0;
 
-// Object
+// Objects
 let loading: Loading;
 let material: THREE.ShaderMaterial;
 let mesh: THREE.Mesh;
 let background: Background;
-let map: Map;
 let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
 let mainPlayer: Player;
 let reflectedPlayer: Player;
-let trees: Tree[];
-let objs: Obj[] = [];
-
-// Event
-let isDragging = false;
-let isRightMouse = false;
 
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
@@ -52,7 +47,9 @@ const render = (now: number = 0) => {
   then = now;
 
   objs.forEach((obj) => obj.update?.());
-  objs.forEach((obj) => obj.render?.());
+  objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
+
+  selectedControl.spawner?.render();
 
   waterContext.drawImage(game.canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
@@ -67,47 +64,35 @@ const render = (now: number = 0) => {
   requestAnimationFrame(render);
 };
 
-const drawMap = (e: MouseEvent) => {
-  const newValue = isRightMouse ? 0 : 1;
-
-  let x = Math.floor(((e.offsetX / CELL_SIZE) * rendererCanvas.width) / rendererCanvas.clientWidth);
-  let y = Math.floor(((e.offsetY / CELL_SIZE) * rendererCanvas.height) / rendererCanvas.clientHeight);
-
-  if (x < 0) x = 0;
-  if (y < 0) y = 0;
-  if (x >= MAP_MAX_X) x = MAP_MAX_X - 1;
-  if (y >= MAP_MAX_Y) y = MAP_MAX_Y - 1;
-
-  if (baseMap[y][x] === newValue) return;
-
-  baseMap[y][x] = newValue;
-  map.init(baseMap);
-};
-
 const registerMouseEvents = () => {
   window.addEventListener("mousedown", (e) => {
     if (!rendererCanvas.contains(e.target as any)) return;
     oldPos = e.x;
-    isDragging = true;
-    isRightMouse = e.button === 2;
+    game.mouse.isDragging = true;
+    game.mouse.isRightMouse = e.button === 2;
 
-    drawMap(e);
+    selectedControl.spawner?.spawn();
   });
 
   window.addEventListener("mouseup", () => {
-    x = x + x2;
-    x2 = 0;
-    isDragging = false;
+    // x = x + x2;
+    // x2 = 0;
+    game.mouse.isDragging = false;
   });
 
   window.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
+    if (rendererCanvas.contains(e.target as any)) {
+      game.mouse.x = e.offsetX;
+      game.mouse.y = e.offsetY;
+    }
 
-    const offset = e.x - oldPos;
+    if (!game.mouse.isDragging) return;
 
-    x2 = offset;
+    selectedControl.spawner?.spawn();
 
-    // drawMap(e);
+    // const offset = e.x - oldPos;
+
+    // x2 = offset;
   });
 
   window.addEventListener("contextmenu", (e) => {
@@ -173,30 +158,10 @@ const registerKeyboardEvents = () => {
   );
 };
 
-const createControlPanel = () => {
-  const createElement = (img: HTMLImageElement, parent: HTMLElement, onClick: () => void) => {
-    const element = img.cloneNode();
-    parent.appendChild(element);
-  };
-  const cpPlayer = document.getElementById("cp-player");
-  createElement(playerTextures[0][0][0][0], cpPlayer, () => {});
-  createElement(playerTextures[0][1][0][0], cpPlayer, () => {});
-  const cpObjects = document.getElementById("cp-objects");
-  createElement(mappingTiles[0], cpObjects, () => {});
-  const cpTrees = document.getElementById("cp-trees");
-  createElement(treeTextures.treeCactus, cpTrees, () => {});
-  createElement(treeTextures.treeCactusSmall, cpTrees, () => {});
-  createElement(treeTextures.treePalm, cpTrees, () => {});
-  createElement(treeTextures.treePalmSmall, cpTrees, () => {});
-  const cpTools = document.getElementById("cp-tools");
-  const hand = new Image();
-  hand.src = getImageSrc("hand");
-  createElement(hand, cpTools, () => {});
-};
-
 const init = async () => {
   game.canvas = document.createElement("canvas");
   game.context = game.canvas.getContext("2d");
+  game.rendererCanvas = rendererCanvas;
   game.canvas.width = SCREEN_WIDTH;
   game.canvas.height = SCREEN_HEIGHT;
   waterCanvas.width = SCREEN_WIDTH;
@@ -208,6 +173,9 @@ const init = async () => {
   game.scene.background = new THREE.Color("#a5ebcc");
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
+  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
+
+  // new OrbitControls(game.camera, game.renderer.domElement);
 
   loading = new Loading();
 
@@ -251,14 +219,15 @@ const init = async () => {
   game.scene.add(mesh);
 
   // Objects
-  trees = [new Tree("treePalmSmall", 12, 11), new Tree("treePalm", 18, 13), new Tree("treeCactus", 25, 13), new Tree("treeCactusSmall", 36, 13)];
-  map = new Map(baseMap);
-  mainPlayer = new Player(200, 400, false);
-  reflectedPlayer = new Player(400, 400, true);
+  map.current = new Map(baseMap);
+  mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false);
+  reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true);
 
-  objs.push(background);
-  trees.forEach((tree) => objs.push(tree));
-  objs.push(map);
+  objs.push(background);d
+  objs.push(map.current);
+  treesInfo.forEach(({ type, x, y }) => {
+    objs.push(new Tree(type as any, x, y));
+  });
   objs.push(mainPlayer);
   objs.push(reflectedPlayer);
 

@@ -1,5 +1,5 @@
 import { playerTextures } from "../common/textures";
-import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game } from "../configs/constants";
+import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game, MAP_MAX_Y } from "../configs/constants";
 import { Obj } from "./object";
 
 export class Player extends Obj {
@@ -21,6 +21,7 @@ export class Player extends Obj {
 
   constructor(x: number, y: number, isRefleted: boolean) {
     super();
+    this.priority = 3;
     this.isReflected = isRefleted;
 
     this.textures = playerTextures[isRefleted ? 1 : 0];
@@ -50,31 +51,36 @@ export class Player extends Obj {
     if (this.v < VELOCITY_MIN) this.v = VELOCITY_MIN;
 
     this.y += this.v;
-    let yNew = this.isReflected ? this.y : 480 - this.y;
+    let yNew = this.isReflected ? this.y : SCREEN_HEIGHT - this.y;
 
     // Check stop fall when the player is falling (this.v < 0)
     if (this.v <= 0) {
       // col_left and col_right of player
       const col_left = Math.floor((this.x - 5) / CELL_SIZE);
       const col_right = Math.floor((this.x + 5) / CELL_SIZE);
-      let row = Math.floor(yNew / CELL_SIZE);
+
+      const offset = this.isReflected ? 1 : -1;
+
+      let row = Math.floor((yNew - offset) / CELL_SIZE);
+      const rowAbove = Math.floor((yNew - 5 * offset) / CELL_SIZE) + offset;
 
       // If foot left or right of player is wall => stop fall
-      if (map[row]?.[col_left] || map[row]?.[col_right]) {
+      if ((map[row]?.[col_left] || map[row]?.[col_right]) && !map[rowAbove]?.[col_left] && !map[rowAbove]?.[col_right]) {
         this.isJumping = false;
 
-        row += this.isReflected ? 1 : -1;
+        row += offset;
 
         // do {
         //   row += 1;
         // } while (map[row]?.[col_left] === 1 || map[row]?.[col_right] === 1);
 
-        this.y = (this.isReflected ? row : 29 - row) * CELL_SIZE;
+        this.y = (this.isReflected ? row : MAP_MAX_Y - 1 - row) * CELL_SIZE;
+
         this.v = 0;
       } else this.isJumping = true;
     }
 
-    yNew = this.isReflected ? this.y : 480 - this.y;
+    yNew = this.isReflected ? this.y : SCREEN_HEIGHT - this.y;
 
     // Get new position of player when run to left or right (old position + offset)
     const offset_ = offset[this.drt];
