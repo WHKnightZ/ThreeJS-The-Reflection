@@ -223,7 +223,7 @@ const init = async () => {
   mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false);
   reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true);
 
-  objs.push(background);d
+  objs.push(background);
   objs.push(map.current);
   treesInfo.forEach(({ type, x, y }) => {
     objs.push(new Tree(type as any, x, y));
