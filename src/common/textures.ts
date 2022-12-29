@@ -218,7 +218,22 @@ const loadTreeTextures = async () => {
   await Promise.all(Object.keys(imageSrcs).map((key) => loadImage(key, imageSrcs[key])));
 };
 
+export const commonTextures: {
+  error: HTMLImageElement;
+} = { error: "error" } as any;
+
+const loadCommonTextures = async () => {
+  const loadImage = (key: string, src: string) => {
+    const image = new Image();
+    commonTextures[key] = image;
+    image.src = getImageSrc(src);
+    return new Promise((res) => (image.onload = () => res(image)));
+  };
+
+  await Promise.all(Object.keys(commonTextures).map((key) => loadImage(key, commonTextures[key])));
+};
+
 // All
 export const loadTextures = async () => {
-  await Promise.all([loadBackgroundTextures(), loadTileTextures(), loadPlayerTextures(), loadTreeTextures()]);
+  await Promise.all([loadBackgroundTextures(), loadTileTextures(), loadPlayerTextures(), loadTreeTextures(), loadCommonTextures()]);
 };

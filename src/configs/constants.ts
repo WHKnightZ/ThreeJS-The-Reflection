@@ -41,6 +41,25 @@ export const game: {
   context: CanvasRenderingContext2D;
   rendererCanvas: HTMLCanvasElement;
   mouse: { x: number; y: number; isDragging: boolean; isRightMouse: boolean };
+  objs: Obj[];
 } = {} as any;
 
-export const objs: Obj[] = [];
+export const OBJ_LAYERS = {
+  PLAYER: 0,
+  TREE: 1,
+  FLAG: 2,
+  SWITCH: 3,
+  WALL: 4,
+  SPIKE: 5,
+  BOX: 6,
+};
+
+export const COLLISION_MATRIX = [
+  [1, 0, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 0, 1],
+];

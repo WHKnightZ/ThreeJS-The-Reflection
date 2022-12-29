@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, DRTS, game, objs, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
+import { baseMap, DRTS, game, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
 import { Background, Map, Player, Tree } from "./objects";
@@ -46,8 +46,9 @@ const render = (now: number = 0) => {
 
   then = now;
 
-  objs.forEach((obj) => obj.update?.());
-  objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
+  game.objs.forEach((obj) => obj.update?.());
+  background.render();
+  game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
 
   selectedControl.spawner?.render();
 
@@ -84,6 +85,8 @@ const registerMouseEvents = () => {
     if (rendererCanvas.contains(e.target as any)) {
       game.mouse.x = e.offsetX;
       game.mouse.y = e.offsetY;
+    } else {
+      game.mouse.x = game.mouse.y = -1;
     }
 
     if (!game.mouse.isDragging) return;
@@ -174,6 +177,7 @@ const init = async () => {
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
   game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
+  game.objs = [];
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 
@@ -223,13 +227,12 @@ const init = async () => {
   mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false);
   reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true);
 
-  objs.push(background);
-  objs.push(map.current);
+  game.objs.push(map.current);
   treesInfo.forEach(({ type, x, y }) => {
-    objs.push(new Tree(type as any, x, y));
+    game.objs.push(new Tree(type as any, x, y));
   });
-  objs.push(mainPlayer);
-  objs.push(reflectedPlayer);
+  game.objs.push(mainPlayer);
+  game.objs.push(reflectedPlayer);
 
   registerMouseEvents();
   registerKeyboardEvents();

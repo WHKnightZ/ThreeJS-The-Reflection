@@ -1,5 +1,5 @@
 import { playerTextures } from "../common/textures";
-import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game, MAP_MAX_Y } from "../configs/constants";
+import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
 import { Obj } from "./object";
 
 export class Player extends Obj {
@@ -21,6 +21,7 @@ export class Player extends Obj {
 
   constructor(x: number, y: number, isRefleted: boolean) {
     super();
+    this.layer = OBJ_LAYERS.PLAYER;
     this.priority = 3;
     this.isReflected = isRefleted;
 
@@ -147,5 +148,9 @@ export class Player extends Obj {
 
   upRelease() {
     this.isHoldingUp = false;
+  }
+
+  getArea() {
+    return { x: 0, y: 0, w: 0, h: 0 };
   }
 }

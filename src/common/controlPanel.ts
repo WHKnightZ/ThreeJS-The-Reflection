@@ -1,8 +1,9 @@
-import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, objs } from "../configs/constants";
+import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y } from "../configs/constants";
 import { Tree } from "../objects";
-import { getImageSrc } from "../utils/common";
+import { Rectangle } from "../types";
+import { checkCanCollide, checkIntersect, getImageSrc } from "../utils/common";
 import { map } from "./map";
-import { mappingTiles, playerTextures, TreeTextures, treeTextures } from "./textures";
+import { commonTextures, mappingTiles, playerTextures, TreeTextures, treeTextures } from "./textures";
 
 class Spawner {
   x: number;
@@ -20,12 +21,30 @@ class Spawner {
     this.y = y;
   }
 
-  isError(): boolean {
-    if (this.y >= MAP_MAX_Y || this.y < 0) return true;
-    return false;
+  checkError(): {
+    error: boolean;
+    show: boolean;
+  } {
+    if (game.mouse.x < 0) return { error: true, show: false };
+
+    if (this.y >= MAP_MAX_Y || this.y < 0) return { error: true, show: false };
+    return { error: false, show: true };
   }
 
   render(): void {}
+
+  getArea(): Rectangle {
+    return { x: 0, y: 0, w: 0, h: 0 };
+  }
+
+  renderError(): void {
+    const ERROR_SIZE = 24;
+    const { x, y, w, h } = this.getArea();
+    const centerX = x + w / 1.5 - ERROR_SIZE / 2;
+    const centerY = y + h / 1.5 - ERROR_SIZE / 2;
+    game.context.globalAlpha = 1;
+    game.context.drawImage(commonTextures.error, centerX, centerY, ERROR_SIZE, ERROR_SIZE);
+  }
 
   spawn(): void {}
 }
@@ -40,23 +59,34 @@ class TreeSpawner extends Spawner {
     this.obj = new Tree(type, 0, 0);
   }
 
-  isError() {
-    return super.isError();
+  checkError() {
+    const { error, show } = super.checkError();
+    if (error) return { error, show };
+
+    const collided = game.objs.some((obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea()));
+
+    return { error: collided, show: true };
   }
 
   render() {
     this.updatePosition();
-    if (this.isError()) return;
+    const { error, show } = this.checkError();
+    if (!show) return;
     game.context.globalAlpha = 0.6;
     this.obj.set(this.x, this.y);
     this.obj.render();
+    if (error) super.renderError();
     game.context.globalAlpha = 1;
   }
 
-  spawn() {
-    if (this.isError()) return;
+  getArea(): Rectangle {
+    return this.obj.getArea();
+  }
 
-    objs.push(new Tree(this.type, this.x, this.y));
+  spawn() {
+    if (this.checkError().error) return;
+
+    game.objs.push(new Tree(this.type, this.x, this.y));
   }
 }
 
@@ -70,7 +100,7 @@ class TileSpawner extends Spawner {
 
   render() {
     this.updatePosition();
-    if (this.isError()) return;
+    if (!this.checkError().show) return;
     game.context.globalAlpha = 0.6;
     game.context.drawImage(mappingTiles[0], this.x * CELL_SIZE, this.y * CELL_SIZE);
     game.context.globalAlpha = 1;

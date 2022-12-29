@@ -1,4 +1,6 @@
-import { APP_NAME, SCREEN_HEIGHT } from "../configs/constants";
+import { APP_NAME, COLLISION_MATRIX, SCREEN_HEIGHT } from "../configs/constants";
+import { Obj } from "../objects/object";
+import { Rectangle } from "../types";
 
 export const getAppName = () => APP_NAME;
 
@@ -57,3 +59,15 @@ export const resize = (image: HTMLImageElement, scale = 1) => {
 export const getImageSrc = (src: string, ext: "png" | "jpg" | "svg" = "png") => `/static/images/${src}.${ext}`;
 
 export const checkIsReflected = (y: number) => y > SCREEN_HEIGHT / 2;
+
+// Kiểm tra xem 2 hình chữ nhật có giao nhau không
+export const checkIntersect = (rect1: Rectangle, rect2: Rectangle) => {
+  if (rect2.x + rect2.w <= rect1.x || rect1.x + rect1.w <= rect2.x) return false;
+  if (rect1.y + rect1.h <= rect2.y || rect2.y + rect2.h <= rect1.y) return false;
+  return true;
+};
+
+export const checkCanCollide = (obj1: Obj, obj2: Obj) => {
+  if (obj1.layer === undefined || obj2.layer === undefined) return false;
+  return !!COLLISION_MATRIX[obj1.layer][obj2.layer];
+};
