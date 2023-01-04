@@ -35,7 +35,8 @@
     { "type": "treePalmSmall", "x": 12, "y": 11 },
     { "type": "treePalm", "x": 18, "y": 13 },
     { "type": "treeCactus", "x": 25, "y": 13 },
-    { "type": "treeCactusSmall", "x": 36, "y": 13 }
+    { "type": "treeCactusSmall", "x": 36, "y": 13 },
+    { "type": "treePalmSmall", "x": 12, "y": 17 }
   ],
   "players": {
     "main": { "x": 200, "y": 400 },

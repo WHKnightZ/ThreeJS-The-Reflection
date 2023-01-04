@@ -190,7 +190,7 @@ const loadPlayerTextures = async () => {
       [rightImages.jump0, rightImages.jump1],
     ],
   ];
-  const reflectedTextures = await Promise.all(mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map(flipVertical))))));
+  const reflectedTextures = await Promise.all(mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c)))))));
 
   playerTextures = [mainTextures, reflectedTextures];
 };
@@ -204,18 +204,20 @@ const imageSrcs = {
 };
 
 export type TreeTextures = { [Property in keyof typeof imageSrcs]: any };
+export type TreeTextureTypes = keyof TreeTextures;
 
-export const treeTextures: TreeTextures = {} as any;
+export const treeTextures: TreeTextures[] = [{}, {}] as any;
 
 const loadTreeTextures = async () => {
   const loadImage = (key: string, src: string) => {
     const image = new Image();
-    treeTextures[key] = image;
+    treeTextures[0][key] = image;
     image.src = getImageSrc(src);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
   await Promise.all(Object.keys(imageSrcs).map((key) => loadImage(key, imageSrcs[key])));
+  await Promise.all(Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
 };
 
 export const commonTextures: {

@@ -63,3 +63,5 @@ export const COLLISION_MATRIX = [
   [0, 0, 0, 0, 0, 1, 0],
   [0, 0, 0, 0, 0, 0, 1],
 ];
+
+export const REFLECTED_OFFSETS = [1, -1];

@@ -1,9 +1,9 @@
-import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y } from "../configs/constants";
+import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, REFLECTED_OFFSETS } from "../configs/constants";
 import { Tree } from "../objects";
 import { Rectangle } from "../types";
-import { checkCanCollide, checkIntersect, getImageSrc } from "../utils/common";
+import { checkCanCollide, checkIntersect, checkIsReflected, getImageSrc } from "../utils/common";
 import { map } from "./map";
-import { commonTextures, mappingTiles, playerTextures, TreeTextures, treeTextures } from "./textures";
+import { commonTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes } from "./textures";
 
 class Spawner {
   x: number;
@@ -12,10 +12,15 @@ class Spawner {
   updatePosition() {
     const x = Math.floor(game.mouse.x / CELL_SIZE);
     let y = Math.floor(game.mouse.y / CELL_SIZE);
-    let y2 = y - 1;
-    while ((!baseMap[y]?.[x] || baseMap[y2]?.[x]) && y < MAP_MAX_Y) {
-      y += 1;
-      y2 += 1;
+    const reflected = checkIsReflected(y);
+    const offset = REFLECTED_OFFSETS[reflected];
+
+    const loopCondition = (y: number) => (reflected ? y >= 0 : y < MAP_MAX_Y);
+
+    let y2 = y - offset;
+    while ((!baseMap[y]?.[x] || baseMap[y2]?.[x]) && loopCondition(y)) {
+      y += offset;
+      y2 += offset;
     }
     this.x = x;
     this.y = y;
@@ -50,10 +55,10 @@ class Spawner {
 }
 
 class TreeSpawner extends Spawner {
-  type: keyof TreeTextures;
+  type: TreeTextureTypes;
   obj: Tree;
 
-  constructor(type: keyof TreeTextures) {
+  constructor(type: TreeTextureTypes) {
     super();
     this.type = type;
     this.obj = new Tree(type, 0, 0);
@@ -156,10 +161,10 @@ export const createControlPanel = () => {
   const cpObjects = document.getElementById("cp-objects");
   createElement(mappingTiles[0], cpObjects, new TileSpawner());
   const cpTrees = document.getElementById("cp-trees");
-  createElement(treeTextures.treeCactus, cpTrees, new TreeSpawner("treeCactus"));
-  createElement(treeTextures.treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));
-  createElement(treeTextures.treePalm, cpTrees, new TreeSpawner("treePalm"));
-  createElement(treeTextures.treePalmSmall, cpTrees, new TreeSpawner("treePalmSmall"));
+  createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
+  createElement(treeTextures[0].treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));
+  createElement(treeTextures[0].treePalm, cpTrees, new TreeSpawner("treePalm"));
+  createElement(treeTextures[0].treePalmSmall, cpTrees, new TreeSpawner("treePalmSmall"));
   const cpTools = document.getElementById("cp-tools");
   const hand = new Image();
   hand.src = getImageSrc("hand");

@@ -1,10 +1,10 @@
-import { APP_NAME, COLLISION_MATRIX, SCREEN_HEIGHT } from "../configs/constants";
+import { APP_NAME, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y } from "../configs/constants";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 
 export const getAppName = () => APP_NAME;
 
-export const flipHorizontal = (image: HTMLImageElement) => {
+export const flipHorizontal = (image: HTMLImageElement, callback?: (img: HTMLImageElement) => void) => {
   const width = image.width;
   const height = image.height;
   const canvas = document.createElement("canvas");
@@ -19,10 +19,16 @@ export const flipHorizontal = (image: HTMLImageElement) => {
   image = new Image();
   image.src = canvas.toDataURL("image/png");
 
-  return new Promise((res) => (image.onload = () => res(image)));
+  return new Promise(
+    (res) =>
+      (image.onload = () => {
+        res(image);
+        callback?.(image);
+      })
+  );
 };
 
-export const flipVertical = (image: HTMLImageElement) => {
+export const flipVertical = (image: HTMLImageElement, callback?: (img: HTMLImageElement) => void) => {
   const width = image.width;
   const height = image.height;
   const canvas = document.createElement("canvas");
@@ -37,7 +43,13 @@ export const flipVertical = (image: HTMLImageElement) => {
   image = new Image();
   image.src = canvas.toDataURL("image/png");
 
-  return new Promise((res) => (image.onload = () => res(image)));
+  return new Promise(
+    (res) =>
+      (image.onload = () => {
+        res(image);
+        callback?.(image);
+      })
+  );
 };
 
 export const resize = (image: HTMLImageElement, scale = 1) => {
@@ -58,7 +70,7 @@ export const resize = (image: HTMLImageElement, scale = 1) => {
 
 export const getImageSrc = (src: string, ext: "png" | "jpg" | "svg" = "png") => `/static/images/${src}.${ext}`;
 
-export const checkIsReflected = (y: number) => y > SCREEN_HEIGHT / 2;
+export const checkIsReflected = (y: number) => (y > MAP_MAX_Y / 2 ? 1 : 0);
 
 // Kiểm tra xem 2 hình chữ nhật có giao nhau không
 export const checkIntersect = (rect1: Rectangle, rect2: Rectangle) => {
@@ -70,4 +82,15 @@ export const checkIntersect = (rect1: Rectangle, rect2: Rectangle) => {
 export const checkCanCollide = (obj1: Obj, obj2: Obj) => {
   if (obj1.layer === undefined || obj2.layer === undefined) return false;
   return !!COLLISION_MATRIX[obj1.layer][obj2.layer];
+};
+
+export const drawWire = (x: number, y: number, w: number, h: number) => {
+  game.context.globalAlpha = 1;
+  game.context.beginPath();
+  game.context.rect(x, y, w, h);
+  game.context.stroke();
+};
+
+export const drawCellWire = (x: number, y: number) => {
+  drawWire(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 };
