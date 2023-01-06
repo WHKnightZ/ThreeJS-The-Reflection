@@ -46,12 +46,19 @@ export const game: {
 
 export const OBJ_LAYERS = {
   PLAYER: 0,
-  TREE: 1,
+  TREE: 1, // Cây, chỉ để trang trí
+  FLAG: 2, // Cờ, khi cả 2 player đâm vào thì qua màn
+  SWITCH: 3, // Công tắc làm tường biến mất
+  WALL: 4, // Tường chắn, sẽ biến mất khi đâm vào Switch
+  SPIKE: 5, // Gai xương rồng, đâm vào sẽ chết
+  BOX: 6, // Hộp để đẩy xuống nước, có khả năng nổi trên mặt nước
+};
+
+export const OBJ_PRIORITIES = {
+  PLAYER: 3,
+  TREE: 0,
   FLAG: 2,
-  SWITCH: 3,
-  WALL: 4,
-  SPIKE: 5,
-  BOX: 6,
+  MAP: 1,
 };
 
 export const COLLISION_MATRIX = [
@@ -65,3 +72,5 @@ export const COLLISION_MATRIX = [
 ];
 
 export const REFLECTED_OFFSETS = [1, -1];
+
+export const FLAG_MAX_ANIM = 9;

@@ -69,6 +69,7 @@ button i {
 #control-panel .cp-wrapper > div img {
   width: 32px;
   height: 32px;
+  padding: 2px;
   cursor: pointer;
   object-fit: scale-down;
   background-color: #92ebd3;

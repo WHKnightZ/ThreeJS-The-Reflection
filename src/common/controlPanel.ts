@@ -1,13 +1,15 @@
 import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, REFLECTED_OFFSETS } from "../configs/constants";
-import { Tree } from "../objects";
+import { Flag, Tree } from "../objects";
+import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 import { checkCanCollide, checkIntersect, checkIsReflected, getImageSrc } from "../utils/common";
 import { map } from "./map";
-import { commonTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes } from "./textures";
+import { commonTextures, flagTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes } from "./textures";
 
 class Spawner {
   x: number;
   y: number;
+  obj: Obj;
 
   updatePosition() {
     const x = Math.floor(game.mouse.x / CELL_SIZE);
@@ -15,10 +17,14 @@ class Spawner {
     const reflected = checkIsReflected(y);
     const offset = REFLECTED_OFFSETS[reflected];
 
-    const loopCondition = (y: number) => (reflected ? y >= 0 : y < MAP_MAX_Y);
+    const loopCondition = (y: number) => (reflected ? y >= MAP_MAX_Y / 2 : y < MAP_MAX_Y / 2);
 
     let y2 = y - offset;
-    while ((!baseMap[y]?.[x] || baseMap[y2]?.[x]) && loopCondition(y)) {
+    while (!baseMap[y]?.[x] || baseMap[y2]?.[x]) {
+      if (!loopCondition(y)) {
+        this.y = -1;
+        return;
+      }
       y += offset;
       y2 += offset;
     }
@@ -34,6 +40,10 @@ class Spawner {
 
     if (this.y >= MAP_MAX_Y || this.y < 0) return { error: true, show: false };
     return { error: false, show: true };
+  }
+
+  checkCollide() {
+    return game.objs.some((obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea()));
   }
 
   render(): void {}
@@ -56,7 +66,6 @@ class Spawner {
 
 class TreeSpawner extends Spawner {
   type: TreeTextureTypes;
-  obj: Tree;
 
   constructor(type: TreeTextureTypes) {
     super();
@@ -68,7 +77,7 @@ class TreeSpawner extends Spawner {
     const { error, show } = super.checkError();
     if (error) return { error, show };
 
-    const collided = game.objs.some((obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea()));
+    const collided = this.checkCollide();
 
     return { error: collided, show: true };
   }
@@ -129,8 +138,45 @@ class TileSpawner extends Spawner {
   }
 }
 
+class FlagSpawner extends Spawner {
+  constructor() {
+    super();
+    this.obj = new Flag(0, 0);
+  }
+
+  checkError() {
+    const { error, show } = super.checkError();
+    if (error) return { error, show };
+
+    const collided = this.checkCollide();
+
+    return { error: collided, show: true };
+  }
+
+  render() {
+    this.updatePosition();
+    const { error, show } = this.checkError();
+    if (!show) return;
+    game.context.globalAlpha = 0.6;
+    this.obj.set(this.x, this.y);
+    this.obj.render();
+    if (error) super.renderError();
+    game.context.globalAlpha = 1;
+  }
+
+  getArea(): Rectangle {
+    return this.obj.getArea();
+  }
+
+  spawn() {
+    if (this.checkError().error) return;
+
+    game.objs.push(new Flag(this.x, this.y));
+  }
+}
+
 export let selectedControl: {
-  element?: HTMLImageElement;
+  element?: HTMLElement;
   spawner?: Spawner;
 } = {};
 
@@ -160,6 +206,7 @@ export const createControlPanel = () => {
   createElement(playerTextures[0][1][0][0], cpPlayer);
   const cpObjects = document.getElementById("cp-objects");
   createElement(mappingTiles[0], cpObjects, new TileSpawner());
+  createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
   const cpTrees = document.getElementById("cp-trees");
   createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
   createElement(treeTextures[0].treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));

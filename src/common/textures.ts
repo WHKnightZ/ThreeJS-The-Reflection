@@ -1,7 +1,23 @@
-import { CELL_SIZE } from "../configs/constants";
+import { CELL_SIZE, FLAG_MAX_ANIM } from "../configs/constants";
 import { flipHorizontal, flipVertical, getImageSrc } from "../utils/common";
 
 export let backgroundTexture: HTMLImageElement;
+
+// Common
+export const commonTextures: {
+  error: HTMLImageElement;
+} = { error: "error" } as any;
+
+const loadCommonTextures = async () => {
+  const loadImage = (key: string, src: string) => {
+    const image = new Image();
+    commonTextures[key] = image;
+    image.src = getImageSrc(src);
+    return new Promise((res) => (image.onload = () => res(image)));
+  };
+
+  await Promise.all(Object.keys(commonTextures).map((key) => loadImage(key, commonTextures[key])));
+};
 
 // Background
 const loadBackgroundTextures = async () => {
@@ -220,22 +236,33 @@ const loadTreeTextures = async () => {
   await Promise.all(Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
 };
 
-export const commonTextures: {
-  error: HTMLImageElement;
-} = { error: "error" } as any;
+// Flag
+export type FlagTextures = HTMLImageElement[][];
 
-const loadCommonTextures = async () => {
-  const loadImage = (key: string, src: string) => {
+const flagKeys = Array.from({ length: FLAG_MAX_ANIM }).map((_, i) => i);
+
+export const flagTextures: FlagTextures = [0, 1].map(() => [...flagKeys]) as any;
+
+const loadFlagTextures = async () => {
+  const loadImage = (index: number) => {
     const image = new Image();
-    commonTextures[key] = image;
-    image.src = getImageSrc(src);
+    flagTextures[0][index] = image;
+    image.src = getImageSrc(`flag-${index}`);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
-  await Promise.all(Object.keys(commonTextures).map((key) => loadImage(key, commonTextures[key])));
+  await Promise.all(flagKeys.map((i) => loadImage(i)));
+  await Promise.all(flagKeys.map((i) => flipVertical(flagTextures[0][i], (img) => (treeTextures[1][i] = img))));
 };
 
 // All
 export const loadTextures = async () => {
-  await Promise.all([loadBackgroundTextures(), loadTileTextures(), loadPlayerTextures(), loadTreeTextures(), loadCommonTextures()]);
+  await Promise.all([
+    loadCommonTextures(), //
+    loadBackgroundTextures(),
+    loadTileTextures(),
+    loadPlayerTextures(),
+    loadTreeTextures(),
+    loadFlagTextures(),
+  ]);
 };

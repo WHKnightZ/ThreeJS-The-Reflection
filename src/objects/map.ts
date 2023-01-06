@@ -18,7 +18,6 @@ export class Map extends Obj {
 
   constructor(map: number[][]) {
     super();
-    this.priority = 1;
     this.init(map);
   }
 

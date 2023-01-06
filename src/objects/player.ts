@@ -3,8 +3,6 @@ import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCI
 import { Obj } from "./object";
 
 export class Player extends Obj {
-  x: number;
-  y: number;
   v: number;
   g: number;
 
@@ -21,8 +19,6 @@ export class Player extends Obj {
 
   constructor(x: number, y: number, isRefleted: boolean) {
     super();
-    this.layer = OBJ_LAYERS.PLAYER;
-    this.priority = 3;
     this.isReflected = isRefleted;
 
     this.textures = playerTextures[isRefleted ? 1 : 0];
@@ -153,4 +149,8 @@ export class Player extends Obj {
   getArea() {
     return { x: 0, y: 0, w: 0, h: 0 };
   }
+
+  onEnterObject(obj: Obj): void {}
+
+  onLeaveObject(obj: Obj): void {}
 }

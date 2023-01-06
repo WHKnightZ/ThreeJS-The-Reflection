@@ -74,6 +74,7 @@ export const checkIsReflected = (y: number) => (y > MAP_MAX_Y / 2 ? 1 : 0);
 
 // Kiểm tra xem 2 hình chữ nhật có giao nhau không
 export const checkIntersect = (rect1: Rectangle, rect2: Rectangle) => {
+  if (!rect1 || !rect2) return false;
   if (rect2.x + rect2.w <= rect1.x || rect1.x + rect1.w <= rect2.x) return false;
   if (rect1.y + rect1.h <= rect2.y || rect2.y + rect2.h <= rect1.y) return false;
   return true;

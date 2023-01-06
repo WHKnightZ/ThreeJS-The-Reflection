@@ -3,10 +3,11 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { baseMap, DRTS, game, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
-import { Background, Map, Player, Tree } from "./objects";
+import { Background, Flag, Map, Player, Tree } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { map } from "./common/map";
+import { checkIntersect } from "./utils/common";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -47,6 +48,16 @@ const render = (now: number = 0) => {
   then = now;
 
   game.objs.forEach((obj) => obj.update?.());
+
+  for (let i = 0; i < game.objs.length - 1; i += 1) {
+    for (let j = i + 1; j < game.objs.length; j += 1) {
+      const obj1 = game.objs[i];
+      const obj2 = game.objs[j];
+
+      const collided = checkIntersect(obj1.getArea(), obj2.getArea());
+    }
+  }
+
   background.render();
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
 
@@ -233,6 +244,8 @@ const init = async () => {
   });
   game.objs.push(mainPlayer);
   game.objs.push(reflectedPlayer);
+
+  game.objs.push(new Flag(22, 13));
 
   registerMouseEvents();
   registerKeyboardEvents();
