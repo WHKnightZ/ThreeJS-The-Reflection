@@ -1,4 +1,4 @@
-import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, REFLECTED_OFFSETS } from "../configs/constants";
+import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
 import { Flag, Tree } from "../objects";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
@@ -120,8 +120,8 @@ class TileSpawner extends Spawner {
     game.context.globalAlpha = 1;
   }
 
-  spawn() {
-    const newValue = game.mouse.isRightMouse ? 0 : 1;
+  spawn(remove?: boolean) {
+    const newValue = game.mouse.isRightMouse || remove ? 0 : 1;
 
     let x = Math.floor(((game.mouse.x / CELL_SIZE) * game.rendererCanvas.width) / game.rendererCanvas.clientWidth);
     let y = Math.floor(((game.mouse.y / CELL_SIZE) * game.rendererCanvas.height) / game.rendererCanvas.clientHeight);
@@ -131,10 +131,11 @@ class TileSpawner extends Spawner {
     if (x >= MAP_MAX_X) x = MAP_MAX_X - 1;
     if (y >= MAP_MAX_Y) y = MAP_MAX_Y - 1;
 
-    if (baseMap[y][x] === newValue) return;
+    if (baseMap[y][x] === newValue) return false;
 
     baseMap[y][x] = newValue;
     map.current.init(baseMap);
+    return true;
   }
 }
 
@@ -171,6 +172,8 @@ class FlagSpawner extends Spawner {
   spawn() {
     if (this.checkError().error) return;
 
+    // Xóa tất cả các obj là cờ và cùng chiều với cờ được thêm
+    game.objs = game.objs.filter((obj) => !(obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y)));
     game.objs.push(new Flag(this.x, this.y));
   }
 }
@@ -205,7 +208,8 @@ export const createControlPanel = () => {
   createElement(playerTextures[0][0][0][0], cpPlayer);
   createElement(playerTextures[0][1][0][0], cpPlayer);
   const cpObjects = document.getElementById("cp-objects");
-  createElement(mappingTiles[0], cpObjects, new TileSpawner());
+  const tileSpawner = new TileSpawner();
+  createElement(mappingTiles[0], cpObjects, tileSpawner);
   createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
   const cpTrees = document.getElementById("cp-trees");
   createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
@@ -223,4 +227,32 @@ export const createControlPanel = () => {
   createElement(remove, cpTools, null, () => {
     useRemoveTool = true;
   });
+
+  let allowedRemove = true;
+
+  const updater = () => {
+    if (useRemoveTool && game.mouse.isDragging && game.mouse.x >= 0 && allowedRemove) {
+      const remove = () => {
+        allowedRemove = false;
+        setTimeout(() => (allowedRemove = true), 100);
+      };
+      const mouseRect = { x: game.mouse.x - 16, y: game.mouse.y - 16, w: 32, h: 32 };
+      const removedIndex = game.objs.findIndex((obj) => checkIntersect(obj.getArea?.(), mouseRect));
+      if (removedIndex === -1) {
+        if (tileSpawner.spawn(true)) remove();
+
+        return;
+      }
+      game.objs.splice(removedIndex, 1);
+      remove();
+    }
+  };
+
+  const renderer = () => {
+    if (useRemoveTool && game.mouse.x >= 0) {
+      game.context.drawImage(commonTextures.remove, game.mouse.x - 12, game.mouse.y - 12, 24, 24);
+    }
+  };
+
+  return { updater, renderer };
 };

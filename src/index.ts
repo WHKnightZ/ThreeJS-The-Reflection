@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, DRTS, game, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
+import { baseMap, DRTS, flagsInfo, game, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
 import { Background, Flag, Map, Player, Tree } from "./objects";
@@ -30,6 +30,11 @@ let waterTexture: THREE.Texture;
 let mainPlayer: Player;
 let reflectedPlayer: Player;
 
+let controlPanel: {
+  updater: () => void;
+  renderer: () => void;
+};
+
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
 
@@ -48,18 +53,38 @@ const render = (now: number = 0) => {
   then = now;
 
   game.objs.forEach((obj) => obj.update?.());
+  controlPanel.updater();
 
   for (let i = 0; i < game.objs.length - 1; i += 1) {
     for (let j = i + 1; j < game.objs.length; j += 1) {
       const obj1 = game.objs[i];
       const obj2 = game.objs[j];
+      const obj1Id = obj1.id;
+      const obj2Id = obj2.id;
 
-      const collided = checkIntersect(obj1.getArea(), obj2.getArea());
+      const collided = checkIntersect(obj1.getArea?.(), obj2.getArea?.());
+
+      if (obj1.collidedObjs[obj2Id]) {
+        if (!collided) {
+          obj1.onLeaveObject?.(obj2);
+          obj2.onLeaveObject?.(obj1);
+          obj1.collidedObjs[obj2Id] = false;
+          obj2.collidedObjs[obj1Id] = false;
+        }
+      } else {
+        if (collided) {
+          obj1.onEnterObject?.(obj2);
+          obj2.onEnterObject?.(obj1);
+          obj1.collidedObjs[obj2Id] = true;
+          obj2.collidedObjs[obj1Id] = true;
+        }
+      }
     }
   }
 
   background.render();
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
+  controlPanel.renderer();
 
   selectedControl.spawner?.render();
 
@@ -201,7 +226,7 @@ const init = async () => {
   // await new Promise((resolve) => setTimeout(() => resolve(null), 100000));
   loading.end();
 
-  createControlPanel();
+  controlPanel = createControlPanel();
 
   game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
 
@@ -239,13 +264,10 @@ const init = async () => {
   reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true);
 
   game.objs.push(map.current);
-  treesInfo.forEach(({ type, x, y }) => {
-    game.objs.push(new Tree(type as any, x, y));
-  });
+  treesInfo.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
+  flagsInfo.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
   game.objs.push(mainPlayer);
   game.objs.push(reflectedPlayer);
-
-  game.objs.push(new Flag(22, 13));
 
   registerMouseEvents();
   registerKeyboardEvents();

@@ -29,10 +29,10 @@ export class Tree extends Obj {
   update() {}
 
   render() {
+    game.context.drawImage(this.texture, this.x - this.texture.width / 2 + this.offset, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height));
     // drawCellWire(this.x_, this.y_);
     // const { x, y, w, h } = this.getArea();
     // drawWire(x, y, w, h);
-    game.context.drawImage(this.texture, this.x - this.texture.width / 2 + this.offset, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height));
   }
 
   getArea() {

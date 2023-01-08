@@ -2,9 +2,9 @@ import { Obj } from "../objects/object";
 
 import mapInfo from "../maps/1.json";
 
-const { baseMap, trees: treesInfo, players: playersInfo } = mapInfo;
+const { baseMap, trees: treesInfo, players: playersInfo, flags: flagsInfo } = mapInfo;
 
-export { baseMap, treesInfo, playersInfo };
+export { baseMap, treesInfo, playersInfo, flagsInfo };
 
 export const APP_NAME = "The Reflection";
 

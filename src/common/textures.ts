@@ -4,9 +4,11 @@ import { flipHorizontal, flipVertical, getImageSrc } from "../utils/common";
 export let backgroundTexture: HTMLImageElement;
 
 // Common
+type CommonTexturesType = "error" | "remove";
+
 export const commonTextures: {
-  error: HTMLImageElement;
-} = { error: "error" } as any;
+  [key in CommonTexturesType]: HTMLImageElement;
+} = { error: "error", remove: "x" } as any;
 
 const loadCommonTextures = async () => {
   const loadImage = (key: string, src: string) => {
@@ -190,9 +192,7 @@ const loadPlayerTextures = async () => {
 
   await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
   const keys = Object.keys(rightImages);
-  (await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key])))).forEach((image, index) => {
-    (leftImages as any)[keys[index]] = image;
-  });
+  await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img))));
 
   const mainTextures = [
     [
@@ -252,7 +252,7 @@ const loadFlagTextures = async () => {
   };
 
   await Promise.all(flagKeys.map((i) => loadImage(i)));
-  await Promise.all(flagKeys.map((i) => flipVertical(flagTextures[0][i], (img) => (treeTextures[1][i] = img))));
+  await Promise.all(flagKeys.map((i) => flipVertical(flagTextures[0][i], (img) => (flagTextures[1][i] = img))));
 };
 
 // All

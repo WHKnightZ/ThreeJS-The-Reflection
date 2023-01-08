@@ -12,7 +12,6 @@ export class Flag extends Obj {
     this.isRaiseUp = false;
     this.anim = 0;
     this.set(x, y);
-    this.texture = flagTextures[checkIsReflected(this.y_)][this.anim];
   }
 
   set(x: number, y: number) {
@@ -20,19 +19,16 @@ export class Flag extends Obj {
     this.y_ = y;
     this.x = x * CELL_SIZE + CELL_SIZE / 2;
     this.y = y * CELL_SIZE;
+    this.texture = flagTextures[checkIsReflected(this.y_)][this.anim];
   }
 
   update() {
-    this.t += 1;
-
-    if (this.t % 3 === 0) {
-      if (this.isRaiseUp) {
-        this.anim += 1;
-        if (this.anim >= FLAG_MAX_ANIM) this.anim = FLAG_MAX_ANIM - 1;
-      } else {
-        this.anim -= 1;
-        if (this.anim < 0) this.anim = 0;
-      }
+    if (this.isRaiseUp) {
+      this.anim += 1;
+      if (this.anim >= FLAG_MAX_ANIM) this.anim = FLAG_MAX_ANIM - 1;
+    } else {
+      this.anim -= 1;
+      if (this.anim < 0) this.anim = 0;
     }
 
     this.texture = flagTextures[checkIsReflected(this.y_)][this.anim];
@@ -47,10 +43,10 @@ export class Flag extends Obj {
   }
 
   render() {
+    game.context.drawImage(this.texture, this.x - this.texture.width / 2, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height + 11));
     // drawCellWire(this.x_, this.y_);
     // const { x, y, w, h } = this.getArea();
     // drawWire(x, y, w, h);
-    game.context.drawImage(this.texture, this.x - this.texture.width / 2, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height + 11));
   }
 
   getArea() {

@@ -1,5 +1,6 @@
 import { playerTextures } from "../common/textures";
 import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
+import { Flag } from "./flag";
 import { Obj } from "./object";
 
 export class Player extends Obj {
@@ -119,8 +120,8 @@ export class Player extends Obj {
   }
 
   render() {
-    const newY = this.isReflected ? SCREEN_HEIGHT - (480 - this.y) : SCREEN_HEIGHT - this.y - 48;
-    game.context.drawImage(this.textures[this.drt][this.stt][this.anim], this.x - 24, newY, 48, 48);
+    const { x, y, w, h } = this.getArea();
+    game.context.drawImage(this.textures[this.drt][this.stt][this.anim], x, y, w, h);
   }
 
   lrHold(drt: number) {
@@ -147,10 +148,19 @@ export class Player extends Obj {
   }
 
   getArea() {
-    return { x: 0, y: 0, w: 0, h: 0 };
+    const newY = this.isReflected ? SCREEN_HEIGHT - (480 - this.y) : SCREEN_HEIGHT - this.y - 48;
+    return { x: this.x - 24, y: newY, w: 48, h: 48 };
   }
 
-  onEnterObject(obj: Obj): void {}
+  onEnterObject(obj: Obj): void {
+    if (obj.layer === OBJ_LAYERS.FLAG) {
+      (obj as Flag).raise();
+    }
+  }
 
-  onLeaveObject(obj: Obj): void {}
+  onLeaveObject(obj: Obj): void {
+    if (obj.layer === OBJ_LAYERS.FLAG) {
+      (obj as Flag).lower();
+    }
+  }
 }
