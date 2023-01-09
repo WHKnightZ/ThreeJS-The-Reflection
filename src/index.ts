@@ -8,6 +8,7 @@ import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { map } from "./common/map";
 import { checkIntersect } from "./utils/common";
+import { Explosion } from "./objects/explosion";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -29,6 +30,8 @@ let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
 let mainPlayer: Player;
 let reflectedPlayer: Player;
+
+let explosions: Explosion[] = [];
 
 let controlPanel: {
   updater: () => void;
@@ -54,6 +57,7 @@ const render = (now: number = 0) => {
 
   game.objs.forEach((obj) => obj.update?.());
   controlPanel.updater();
+  explosions.forEach((obj) => obj.update());
 
   for (let i = 0; i < game.objs.length - 1; i += 1) {
     for (let j = i + 1; j < game.objs.length; j += 1) {
@@ -86,6 +90,8 @@ const render = (now: number = 0) => {
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
   controlPanel.renderer();
 
+  explosions.forEach((obj) => obj.render());
+
   selectedControl.spawner?.render();
 
   waterContext.drawImage(game.canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
@@ -103,6 +109,7 @@ const render = (now: number = 0) => {
 
 const registerMouseEvents = () => {
   window.addEventListener("mousedown", (e) => {
+    explosions.push(new Explosion(300, 300, 10, "#f00"));
     if (!rendererCanvas.contains(e.target as any)) return;
     oldPos = e.x;
     game.mouse.isDragging = true;
