@@ -32,7 +32,9 @@ export class Obj {
   render?(): void;
   update?(): void;
   getArea?(): Rectangle;
+  reset?(): void;
 
+  // Event
   onEnterObject?(obj: Obj): void;
   onLeaveObject?(obj: Obj): void;
 }

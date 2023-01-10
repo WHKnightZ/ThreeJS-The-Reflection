@@ -236,6 +236,9 @@ export const createControlPanel = () => {
     useExplosionTool = true;
   });
 
+  const btnReset = document.getElementById("btn-reset");
+  btnReset.addEventListener("click", () => {});
+
   let paused = false;
 
   const updater = () => {

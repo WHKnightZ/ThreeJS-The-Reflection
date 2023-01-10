@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icon';
-  src:  url('fonts/icon.eot?azroar');
-  src:  url('fonts/icon.eot?azroar#iefix') format('embedded-opentype'),
-    url('fonts/icon.ttf?azroar') format('truetype'),
-    url('fonts/icon.woff?azroar') format('woff'),
-    url('fonts/icon.svg?azroar#icon') format('svg');
+  src:  url('fonts/icon.eot?biweiv');
+  src:  url('fonts/icon.eot?biweiv#iefix') format('embedded-opentype'),
+    url('fonts/icon.ttf?biweiv') format('truetype'),
+    url('fonts/icon.woff?biweiv') format('woff'),
+    url('fonts/icon.svg?biweiv#icon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,7 +25,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-reload:before {
+.icon-reset:before {
   content: "\e903";
 }
 .icon-download:before {

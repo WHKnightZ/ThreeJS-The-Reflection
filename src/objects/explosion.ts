@@ -9,18 +9,18 @@ export class Explosion extends Obj {
   dots: { x: number; y: number; offsetX: number; offsetY: number; size: number }[];
   size: number;
   color: string;
-  alive: boolean;
+  isAlive: boolean;
 
   constructor(x: number, y: number, size: number = 8, color: string = "#fd6b00") {
     super();
     this.t = 0;
     this.x = x;
     this.y = y;
-    this.alive = true;
+    this.isAlive = true;
     const offsetAngle = Math.random();
     this.dots = dots.map((i) => {
       const angle = ((2 * Math.PI) / DOTS_LENGTH) * i + offsetAngle;
-      const offsetRandom = (Math.random() * 0.4 + 0.6) * 2.6;
+      const offsetRandom = (Math.random() * 0.5 + 0.5) * 2.6;
       const offsetX = Math.cos(angle) * offsetRandom;
       const offsetY = Math.sin(angle) * offsetRandom;
       const sizeRandom = (Math.random() * 0.5 + 0.5) * size;
@@ -32,7 +32,7 @@ export class Explosion extends Obj {
   }
 
   update() {
-    let alive = false;
+    let isAlive = false;
     this.dots.forEach((dot) => {
       dot.offsetX *= 1.01;
       dot.offsetY *= 1.01;
@@ -40,10 +40,10 @@ export class Explosion extends Obj {
       dot.y += dot.offsetY;
       dot.size *= 0.95;
 
-      if (dot.size > 0.5) alive = true;
+      if (dot.size > 0.5) isAlive = true;
     });
 
-    this.alive = alive;
+    this.isAlive = isAlive;
   }
 
   render() {

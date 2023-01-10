@@ -39,8 +39,8 @@
     { "type": "treePalmSmall", "x": 12, "y": 17 }
   ],
   "players": {
-    "main": { "x": 200, "y": 400 },
-    "reflected": { "x": 400, "y": 400 }
+    "main": { "x": 200, "y": 120 },
+    "reflected": { "x": 400, "y": 360 }
   },
   "flags": [
     { "x": 22, "y": 13 },

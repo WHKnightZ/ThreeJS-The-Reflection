@@ -1,7 +1,7 @@
 import { Obj } from "../objects/object";
-
 import mapInfo from "../maps/1.json";
 import { Explosion } from "../objects/explosion";
+import { Player } from "../objects/player";
 
 const { baseMap, trees: treesInfo, players: playersInfo, flags: flagsInfo } = mapInfo;
 
@@ -32,7 +32,7 @@ export enum STTS {
   JUMP,
 }
 
-export const offset = [-1, 1];
+export const offsetFactors = [-1, 1];
 
 export const game: {
   renderer: THREE.WebGLRenderer;
@@ -42,6 +42,7 @@ export const game: {
   context: CanvasRenderingContext2D;
   rendererCanvas: HTMLCanvasElement;
   mouse: { x: number; y: number; isDragging: boolean; isRightMouse: boolean };
+  players: Player[];
   objs: Obj[];
   explosions: Explosion[];
 } = {} as any;

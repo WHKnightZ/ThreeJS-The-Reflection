@@ -27,8 +27,6 @@ let mesh: THREE.Mesh;
 let background: Background;
 let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
-let mainPlayer: Player;
-let reflectedPlayer: Player;
 
 let controlPanel: {
   updater: () => void;
@@ -39,18 +37,26 @@ const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
 
 // let oldPos: number;
-let x: number = 0;
-let x2: number = 0;
+// let x: number = 0;
+// let x2: number = 0;
 
 const render = (now: number = 0) => {
+  requestAnimationFrame(render);
+
   if (!then) then = now;
 
   const elapsed = (now - then) / 1000;
   total += elapsed;
 
-  material.uniforms.uTime.value = total;
-
   then = now;
+
+  // if (elapsed > 0.1) {
+  //   then = now;
+  // } else {
+  //   return;
+  // }
+
+  material.uniforms.uTime.value = total;
 
   game.objs.forEach((obj) => obj.update?.());
   controlPanel.updater();
@@ -59,9 +65,9 @@ const render = (now: number = 0) => {
   let needUpdateExplosions = false;
   game.explosions.forEach((obj) => {
     obj.update();
-    needUpdateExplosions = needUpdateExplosions || !obj.alive;
+    needUpdateExplosions = needUpdateExplosions || !obj.isAlive;
   });
-  if (needUpdateExplosions) game.explosions = game.explosions.filter((obj) => obj.alive);
+  if (needUpdateExplosions) game.explosions = game.explosions.filter((obj) => obj.isAlive);
 
   // Collision
   for (let i = 0; i < game.objs.length - 1; i += 1) {
@@ -106,11 +112,9 @@ const render = (now: number = 0) => {
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
-  game.scene.position.setX((x + x2) / 200);
+  // game.scene.position.setX((x + x2) / 200);
 
   game.renderer.render(game.scene, game.camera);
-
-  requestAnimationFrame(render);
 };
 
 const registerMouseEvents = () => {
@@ -159,18 +163,15 @@ const registerKeyboardEvents = () => {
 
       switch (key) {
         case "ArrowLeft":
-          mainPlayer.lrHold(DRTS.LEFT);
-          reflectedPlayer.lrHold(DRTS.LEFT);
+          game.players.forEach((player) => player.lrHold(DRTS.LEFT));
           break;
 
         case "ArrowRight":
-          mainPlayer.lrHold(DRTS.RIGHT);
-          reflectedPlayer.lrHold(DRTS.RIGHT);
+          game.players.forEach((player) => player.lrHold(DRTS.RIGHT));
           break;
 
         case "ArrowUp":
-          mainPlayer.upHold();
-          reflectedPlayer.upHold();
+          game.players.forEach((player) => player.upHold());
           break;
 
         default:
@@ -187,18 +188,15 @@ const registerKeyboardEvents = () => {
 
       switch (key) {
         case "ArrowLeft":
-          mainPlayer.lrRelease(DRTS.LEFT);
-          reflectedPlayer.lrRelease(DRTS.LEFT);
+          game.players.forEach((player) => player.lrRelease(DRTS.LEFT));
           break;
 
         case "ArrowRight":
-          mainPlayer.lrRelease(DRTS.RIGHT);
-          reflectedPlayer.lrRelease(DRTS.RIGHT);
+          game.players.forEach((player) => player.lrRelease(DRTS.RIGHT));
           break;
 
         case "ArrowUp":
-          mainPlayer.upRelease();
-          reflectedPlayer.upRelease();
+          game.players.forEach((player) => player.upRelease());
           break;
 
         default:
@@ -225,6 +223,7 @@ const init = async () => {
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
   game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
+  game.players = [];
   game.objs = [];
   game.explosions = [];
 
@@ -273,12 +272,14 @@ const init = async () => {
 
   // Objects
   map.current = new Map(baseMap);
-  mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false, DRTS.RIGHT);
-  reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true, DRTS.RIGHT);
+  const mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, DRTS.RIGHT);
+  const reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, DRTS.RIGHT);
 
   game.objs.push(map.current);
   treesInfo.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
   flagsInfo.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
+  game.players.push(mainPlayer);
+  game.players.push(reflectedPlayer);
   game.objs.push(mainPlayer);
   game.objs.push(reflectedPlayer);
 
