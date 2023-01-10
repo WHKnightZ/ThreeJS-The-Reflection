@@ -1,5 +1,6 @@
 import { playerTextures } from "../common/textures";
 import { CELL_SIZE, DRTS, baseMap as map, offset, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, SCREEN_HEIGHT, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
+// import { checkIsReflected } from "../utils/common";
 import { Flag } from "./flag";
 import { Obj } from "./object";
 
@@ -18,17 +19,18 @@ export class Player extends Obj {
 
   textures: any[][][];
 
-  constructor(x: number, y: number, isRefleted: boolean) {
+  constructor(x: number, y: number, isReflected: boolean, drt: number = DRTS.RIGHT) {
     super();
-    this.isReflected = isRefleted;
+    // const isReflected = !!checkIsReflected(Math.floor(y / CELL_SIZE));
+    this.isReflected = isReflected;
 
-    this.textures = playerTextures[isRefleted ? 1 : 0];
+    this.textures = playerTextures[isReflected ? 1 : 0];
     this.x = x;
     this.y = y;
     this.v = 0;
     this.g = -0.5;
     this.t = 0;
-    this.drt = DRTS.RIGHT;
+    this.drt = drt;
     this.stt = STTS.STAND;
     this.anim = 0;
     this.isRunning = this.isJumping = this.isHoldingUp = false;

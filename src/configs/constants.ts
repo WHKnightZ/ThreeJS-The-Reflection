@@ -1,6 +1,7 @@
 import { Obj } from "../objects/object";
 
 import mapInfo from "../maps/1.json";
+import { Explosion } from "../objects/explosion";
 
 const { baseMap, trees: treesInfo, players: playersInfo, flags: flagsInfo } = mapInfo;
 
@@ -42,6 +43,7 @@ export const game: {
   rendererCanvas: HTMLCanvasElement;
   mouse: { x: number; y: number; isDragging: boolean; isRightMouse: boolean };
   objs: Obj[];
+  explosions: Explosion[];
 } = {} as any;
 
 export const OBJ_LAYERS = {

@@ -70,7 +70,7 @@ export const resize = (image: HTMLImageElement, scale = 1) => {
 
 export const getImageSrc = (src: string, ext: "png" | "jpg" | "svg" = "png") => `/static/images/${src}.${ext}`;
 
-export const checkIsReflected = (y: number) => (y > MAP_MAX_Y / 2 ? 1 : 0);
+export const checkIsReflected = (y: number) => (y >= Math.floor(MAP_MAX_Y / 2) ? 1 : 0);
 
 // Kiểm tra xem 2 hình chữ nhật có giao nhau không
 export const checkIntersect = (rect1: Rectangle, rect2: Rectangle) => {

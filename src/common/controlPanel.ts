@@ -1,5 +1,6 @@
 import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
 import { Flag, Tree } from "../objects";
+import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 import { checkCanCollide, checkIntersect, checkIsReflected, getImageSrc } from "../utils/common";
@@ -17,7 +18,7 @@ class Spawner {
     const reflected = checkIsReflected(y);
     const offset = REFLECTED_OFFSETS[reflected];
 
-    const loopCondition = (y: number) => (reflected ? y >= MAP_MAX_Y / 2 : y < MAP_MAX_Y / 2);
+    const loopCondition = (y: number) => (reflected ? y > MAP_MAX_Y / 2 : y < MAP_MAX_Y / 2 - 1);
 
     let y2 = y - offset;
     while (!baseMap[y]?.[x] || baseMap[y2]?.[x]) {
@@ -185,6 +186,7 @@ export let selectedControl: {
 
 export let useHandTool = false;
 export let useRemoveTool = false;
+export let useExplosionTool = false;
 
 export const createControlPanel = () => {
   const createElement = (img: HTMLImageElement, parent: HTMLElement, spawner?: Spawner | null, onClick?: (() => void) | null) => {
@@ -193,6 +195,7 @@ export const createControlPanel = () => {
       if (element === selectedControl.element) return;
       useHandTool = false;
       useRemoveTool = false;
+      useExplosionTool = false;
 
       onClick?.();
 
@@ -227,24 +230,40 @@ export const createControlPanel = () => {
   createElement(remove, cpTools, null, () => {
     useRemoveTool = true;
   });
+  const explosion = new Image();
+  explosion.src = getImageSrc("explosion");
+  createElement(explosion, cpTools, null, () => {
+    useExplosionTool = true;
+  });
 
-  let allowedRemove = true;
+  let paused = false;
 
   const updater = () => {
-    if (useRemoveTool && game.mouse.isDragging && game.mouse.x >= 0 && allowedRemove) {
-      const remove = () => {
-        allowedRemove = false;
-        setTimeout(() => (allowedRemove = true), 100);
+    if (game.mouse.isDragging && game.mouse.x >= 0 && !paused) {
+      const pause = (delay: number = 100) => {
+        paused = true;
+        setTimeout(() => (paused = false), delay);
       };
-      const mouseRect = { x: game.mouse.x - 16, y: game.mouse.y - 16, w: 32, h: 32 };
-      const removedIndex = game.objs.findIndex((obj) => checkIntersect(obj.getArea?.(), mouseRect));
-      if (removedIndex === -1) {
-        if (tileSpawner.spawn(true)) remove();
 
-        return;
+      if (useRemoveTool) {
+        const mouseRect = { x: game.mouse.x - 16, y: game.mouse.y - 16, w: 32, h: 32 };
+        const removedIndex = game.objs.findIndex((obj) => checkIntersect(obj.getArea?.(), mouseRect));
+        if (removedIndex === -1) {
+          if (tileSpawner.spawn(true)) pause();
+
+          return;
+        }
+        game.objs.splice(removedIndex, 1);
+        pause();
       }
-      game.objs.splice(removedIndex, 1);
-      remove();
+
+      if (useHandTool) {
+      }
+
+      if (useExplosionTool) {
+        game.explosions.push(new Explosion(game.mouse.x, game.mouse.y));
+        pause(200);
+      }
     }
   };
 

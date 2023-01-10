@@ -8,7 +8,6 @@ import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { map } from "./common/map";
 import { checkIntersect } from "./utils/common";
-import { Explosion } from "./objects/explosion";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -31,8 +30,6 @@ let waterTexture: THREE.Texture;
 let mainPlayer: Player;
 let reflectedPlayer: Player;
 
-let explosions: Explosion[] = [];
-
 let controlPanel: {
   updater: () => void;
   renderer: () => void;
@@ -41,7 +38,7 @@ let controlPanel: {
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
 
-let oldPos: number;
+// let oldPos: number;
 let x: number = 0;
 let x2: number = 0;
 
@@ -57,8 +54,16 @@ const render = (now: number = 0) => {
 
   game.objs.forEach((obj) => obj.update?.());
   controlPanel.updater();
-  explosions.forEach((obj) => obj.update());
 
+  // Explosion
+  let needUpdateExplosions = false;
+  game.explosions.forEach((obj) => {
+    obj.update();
+    needUpdateExplosions = needUpdateExplosions || !obj.alive;
+  });
+  if (needUpdateExplosions) game.explosions = game.explosions.filter((obj) => obj.alive);
+
+  // Collision
   for (let i = 0; i < game.objs.length - 1; i += 1) {
     for (let j = i + 1; j < game.objs.length; j += 1) {
       const obj1 = game.objs[i];
@@ -90,7 +95,7 @@ const render = (now: number = 0) => {
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
   controlPanel.renderer();
 
-  explosions.forEach((obj) => obj.render());
+  game.explosions.forEach((obj) => obj.render());
 
   selectedControl.spawner?.render();
 
@@ -102,6 +107,7 @@ const render = (now: number = 0) => {
   waterTexture.needsUpdate = true;
 
   game.scene.position.setX((x + x2) / 200);
+
   game.renderer.render(game.scene, game.camera);
 
   requestAnimationFrame(render);
@@ -109,9 +115,8 @@ const render = (now: number = 0) => {
 
 const registerMouseEvents = () => {
   window.addEventListener("mousedown", (e) => {
-    explosions.push(new Explosion(300, 300, 10, "#f00"));
     if (!rendererCanvas.contains(e.target as any)) return;
-    oldPos = e.x;
+    // oldPos = e.x;
     game.mouse.isDragging = true;
     game.mouse.isRightMouse = e.button === 2;
 
@@ -221,6 +226,7 @@ const init = async () => {
   game.camera.position.set(0, 0, 15);
   game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
   game.objs = [];
+  game.explosions = [];
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 
@@ -267,8 +273,8 @@ const init = async () => {
 
   // Objects
   map.current = new Map(baseMap);
-  mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false);
-  reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true);
+  mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, false, DRTS.RIGHT);
+  reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, true, DRTS.RIGHT);
 
   game.objs.push(map.current);
   treesInfo.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));

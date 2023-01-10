@@ -43,7 +43,7 @@ export class Flag extends Obj {
   }
 
   render() {
-    game.context.drawImage(this.texture, this.x - this.texture.width / 2, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height + 11));
+    game.context.drawImage(this.texture, this.x - this.texture.width / 2, this.y + (checkIsReflected(this.y_) ? CELL_SIZE - 10 : -this.texture.height + 10));
     // drawCellWire(this.x_, this.y_);
     // const { x, y, w, h } = this.getArea();
     // drawWire(x, y, w, h);
