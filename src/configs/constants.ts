@@ -1,7 +1,7 @@
-import { Obj } from "../objects/object";
 import mapInfo from "../maps/1.json";
-import { Explosion } from "../objects/explosion";
-import { Player } from "../objects/player";
+import type { Obj } from "../objects/object";
+import type { Explosion } from "../objects/explosion";
+import type { Player } from "../objects/player";
 
 const { baseMap, trees: treesInfo, players: playersInfo, flags: flagsInfo } = mapInfo;
 

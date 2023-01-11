@@ -30,9 +30,7 @@ export class Player extends Obj {
   constructor(x: number, y: number, drt: number = DRTS.RIGHT) {
     super();
 
-    this.savedInfo = { x, y, drt };
-
-    this.reset();
+    this.set(x, y, drt);
   }
 
   update() {
@@ -162,6 +160,12 @@ export class Player extends Obj {
   getArea() {
     const newY = this.isReflected ? this.y : this.y - 48;
     return { x: this.x - 24, y: newY, w: 48, h: 48 };
+  }
+
+  set(x: number, y: number, drt: number) {
+    this.savedInfo = { x, y, drt };
+
+    this.reset();
   }
 
   reset() {

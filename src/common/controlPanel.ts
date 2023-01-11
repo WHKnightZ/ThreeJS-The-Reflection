@@ -1,5 +1,5 @@
-import { baseMap, CELL_SIZE, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
-import { Flag, Tree } from "../objects";
+import { baseMap, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
+import { Flag, Player, Tree } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
@@ -11,6 +11,18 @@ class Spawner {
   x: number;
   y: number;
   obj: Obj;
+  isPaused: boolean;
+  pauseDelay: number;
+
+  constructor(pauseDelay: number = 100) {
+    this.isPaused = false;
+    this.pauseDelay = pauseDelay;
+  }
+
+  pause() {
+    this.isPaused = true;
+    setTimeout(() => (this.isPaused = false), this.pauseDelay);
+  }
 
   updatePosition() {
     const x = Math.floor(game.mouse.x / CELL_SIZE);
@@ -65,6 +77,44 @@ class Spawner {
   spawn(): void {}
 }
 
+class PlayerSpawner extends Spawner {
+  drt: number;
+
+  constructor(drt: number) {
+    super();
+    this.drt = drt;
+    this.obj = new Player(0, 0);
+  }
+
+  render() {
+    const { show } = this.checkError();
+    if (!show) return;
+    game.context.globalAlpha = 0.6;
+    this.obj.set(game.mouse.x, game.mouse.y, this.drt);
+    this.obj.render();
+    game.context.globalAlpha = 1;
+  }
+
+  getArea(): Rectangle {
+    return this.obj.getArea();
+  }
+
+  spawn() {
+    if (this.checkError().error || this.isPaused) return;
+
+    const thisPlayer = <Player>this.obj;
+
+    const sameDrtObj = game.players.find((p) => p.isReflected === thisPlayer.isReflected);
+    if (sameDrtObj) sameDrtObj.set(thisPlayer.x, thisPlayer.y, thisPlayer.drt);
+    else {
+      const player = new Player(thisPlayer.x, thisPlayer.y, thisPlayer.drt);
+      game.players.push(player);
+      game.objs.push(player);
+    }
+    this.pause();
+  }
+}
+
 class TreeSpawner extends Spawner {
   type: TreeTextureTypes;
 
@@ -90,7 +140,7 @@ class TreeSpawner extends Spawner {
     game.context.globalAlpha = 0.6;
     this.obj.set(this.x, this.y);
     this.obj.render();
-    if (error) super.renderError();
+    if (error) this.renderError();
     game.context.globalAlpha = 1;
   }
 
@@ -99,9 +149,10 @@ class TreeSpawner extends Spawner {
   }
 
   spawn() {
-    if (this.checkError().error) return;
+    if (this.checkError().error || this.isPaused) return;
 
     game.objs.push(new Tree(this.type, this.x, this.y));
+    this.pause();
   }
 }
 
@@ -124,8 +175,10 @@ class TileSpawner extends Spawner {
   spawn(remove?: boolean) {
     const newValue = game.mouse.isRightMouse || remove ? 0 : 1;
 
-    let x = Math.floor(((game.mouse.x / CELL_SIZE) * game.rendererCanvas.width) / game.rendererCanvas.clientWidth);
-    let y = Math.floor(((game.mouse.y / CELL_SIZE) * game.rendererCanvas.height) / game.rendererCanvas.clientHeight);
+    // let x = Math.floor(((game.mouse.x / CELL_SIZE) * game.rendererCanvas.width) / game.rendererCanvas.clientWidth);
+    // let y = Math.floor(((game.mouse.y / CELL_SIZE) * game.rendererCanvas.height) / game.rendererCanvas.clientHeight);
+    let x = Math.floor(game.mouse.x / CELL_SIZE);
+    let y = Math.floor(game.mouse.y / CELL_SIZE);
 
     if (x < 0) x = 0;
     if (y < 0) y = 0;
@@ -162,7 +215,7 @@ class FlagSpawner extends Spawner {
     game.context.globalAlpha = 0.6;
     this.obj.set(this.x, this.y);
     this.obj.render();
-    if (error) super.renderError();
+    if (error) this.renderError();
     game.context.globalAlpha = 1;
   }
 
@@ -171,11 +224,56 @@ class FlagSpawner extends Spawner {
   }
 
   spawn() {
-    if (this.checkError().error) return;
+    if (this.checkError().error || this.isPaused) return;
 
-    // Xóa tất cả các obj là cờ và cùng chiều với cờ được thêm
-    game.objs = game.objs.filter((obj) => !(obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y)));
-    game.objs.push(new Flag(this.x, this.y));
+    const sameDrtObj = game.objs.find((obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y));
+    if (sameDrtObj) sameDrtObj.set(this.x, this.y);
+    else game.objs.push(new Flag(this.x, this.y));
+    this.pause();
+  }
+}
+
+class RemoveSpawner extends Spawner {
+  tileSpawner: TileSpawner;
+
+  constructor(tileSpawner: TileSpawner) {
+    super();
+    this.tileSpawner = tileSpawner;
+  }
+
+  render() {
+    const { show } = this.checkError();
+    if (!show) return;
+
+    game.context.drawImage(commonTextures.remove, game.mouse.x - 12, game.mouse.y - 12, 24, 24);
+  }
+
+  spawn() {
+    if (this.checkError().error || this.isPaused) return;
+
+    const mouseRect = { x: game.mouse.x - 16, y: game.mouse.y - 16, w: 32, h: 32 };
+    const removedIndex = game.objs.findIndex((obj) => checkIntersect(obj.getArea?.(), mouseRect));
+    if (removedIndex === -1) {
+      if (this.tileSpawner.spawn(true)) this.pause();
+
+      return;
+    }
+    const removedItem = game.objs.splice(removedIndex, 1)[0];
+    if (removedItem.layer === OBJ_LAYERS.PLAYER) game.players = game.players.filter((p) => p.id !== removedItem.id);
+    this.pause();
+  }
+}
+
+class ExplosionSpawner extends Spawner {
+  constructor() {
+    super(200);
+  }
+
+  spawn() {
+    if (this.checkError().error || this.isPaused) return;
+
+    game.explosions.push(new Explosion(game.mouse.x, game.mouse.y));
+    this.pause();
   }
 }
 
@@ -185,8 +283,6 @@ export let selectedControl: {
 } = {};
 
 export let useHandTool = false;
-export let useRemoveTool = false;
-export let useExplosionTool = false;
 
 export const createControlPanel = () => {
   const createElement = (img: HTMLImageElement, parent: HTMLElement, spawner?: Spawner | null, onClick?: (() => void) | null) => {
@@ -194,8 +290,6 @@ export const createControlPanel = () => {
     element.addEventListener("click", () => {
       if (element === selectedControl.element) return;
       useHandTool = false;
-      useRemoveTool = false;
-      useExplosionTool = false;
 
       onClick?.();
 
@@ -208,8 +302,8 @@ export const createControlPanel = () => {
     parent.appendChild(element);
   };
   const cpPlayer = document.getElementById("cp-player");
-  createElement(playerTextures[0][0][0][0], cpPlayer);
-  createElement(playerTextures[0][1][0][0], cpPlayer);
+  createElement(playerTextures[0][0][0][0], cpPlayer, new PlayerSpawner(DRTS.LEFT));
+  createElement(playerTextures[0][1][0][0], cpPlayer, new PlayerSpawner(DRTS.RIGHT));
   const cpObjects = document.getElementById("cp-objects");
   const tileSpawner = new TileSpawner();
   createElement(mappingTiles[0], cpObjects, tileSpawner);
@@ -227,54 +321,33 @@ export const createControlPanel = () => {
   });
   const remove = new Image();
   remove.src = getImageSrc("remove");
-  createElement(remove, cpTools, null, () => {
-    useRemoveTool = true;
-  });
+  createElement(remove, cpTools, new RemoveSpawner(tileSpawner));
   const explosion = new Image();
   explosion.src = getImageSrc("explosion");
-  createElement(explosion, cpTools, null, () => {
-    useExplosionTool = true;
-  });
+  createElement(explosion, cpTools, new ExplosionSpawner());
+
+  const btnImport = document.getElementById("btn-import");
+  btnImport.addEventListener("click", () => {});
+
+  const btnExport = document.getElementById("btn-export");
+  btnExport.addEventListener("click", () => {});
+
+  const btnPlay = document.getElementById("btn-play");
+  btnPlay.addEventListener("click", () => {});
 
   const btnReset = document.getElementById("btn-reset");
-  btnReset.addEventListener("click", () => {});
-
-  let paused = false;
+  btnReset.addEventListener("click", () => {
+    game.players.forEach((player) => player.reset());
+  });
 
   const updater = () => {
-    if (game.mouse.isDragging && game.mouse.x >= 0 && !paused) {
-      const pause = (delay: number = 100) => {
-        paused = true;
-        setTimeout(() => (paused = false), delay);
-      };
-
-      if (useRemoveTool) {
-        const mouseRect = { x: game.mouse.x - 16, y: game.mouse.y - 16, w: 32, h: 32 };
-        const removedIndex = game.objs.findIndex((obj) => checkIntersect(obj.getArea?.(), mouseRect));
-        if (removedIndex === -1) {
-          if (tileSpawner.spawn(true)) pause();
-
-          return;
-        }
-        game.objs.splice(removedIndex, 1);
-        pause();
-      }
-
+    if (game.mouse.isDragging && game.mouse.x >= 0) {
       if (useHandTool) {
       }
-
-      if (useExplosionTool) {
-        game.explosions.push(new Explosion(game.mouse.x, game.mouse.y));
-        pause(200);
-      }
     }
   };
 
-  const renderer = () => {
-    if (useRemoveTool && game.mouse.x >= 0) {
-      game.context.drawImage(commonTextures.remove, game.mouse.x - 12, game.mouse.y - 12, 24, 24);
-    }
-  };
+  const renderer = () => {};
 
   return { updater, renderer };
 };
