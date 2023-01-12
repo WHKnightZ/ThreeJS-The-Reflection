@@ -1,6 +1,9 @@
-import { APP_NAME, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y } from "../configs/constants";
-import { Obj } from "../objects/object";
+import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
+import type { Obj } from "../objects/object";
+import { Flag, Player, Tree } from "../objects";
+import { Map } from "../objects";
 import { Rectangle } from "../types";
+import { map } from "../common/map";
 
 export const getAppName = () => APP_NAME;
 
@@ -94,4 +97,64 @@ export const drawWire = (x: number, y: number, w: number, h: number) => {
 
 export const drawCellWire = (x: number, y: number) => {
   drawWire(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+};
+
+export const initMap = () => {
+  game.players = [];
+  game.objs = [];
+  game.explosions = [];
+
+  map.current = new Map(mapInfo.baseMap);
+  const players = mapInfo.players.map((player) => new Player(player.x, player.y, player.drt));
+
+  game.objs.push(map.current);
+  mapInfo.trees.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
+  mapInfo.flags.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
+  game.players = players;
+  players.forEach((player) => game.objs.push(player));
+};
+
+export const importMap = () => {
+  const inputFile = document.getElementById("input-file");
+  inputFile.click();
+  inputFile.onchange = (e: any) => {
+    const files = e.target.files;
+    if (!files?.[0]) return;
+
+    const file = files[0];
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = reader.result;
+        const newMapInfo = JSON.parse(text as string);
+        mapInfo.baseMap = newMapInfo.baseMap;
+        mapInfo.players = newMapInfo.players;
+        mapInfo.trees = newMapInfo.trees;
+        mapInfo.flags = newMapInfo.flags;
+        initMap();
+      } catch {}
+    };
+    reader.readAsText(file);
+
+    e.target.value = null;
+  };
+};
+
+export const exportMap = () => {
+  const trees = <Tree[]>game.objs.filter((obj) => obj.layer === OBJ_LAYERS.TREE);
+  const players = game.players;
+  const flags = <Flag[]>game.objs.filter((obj) => obj.layer === OBJ_LAYERS.FLAG);
+
+  const data = {
+    baseMap: mapInfo.baseMap,
+    trees: trees.map((tree) => ({ type: tree.type, x: tree.x_, y: tree.y_ })),
+    players: players.map((player) => player.savedInfo),
+    flags: flags.map((flag) => ({ x: flag.x_, y: flag.y_ })),
+  };
+
+  const a = document.createElement("a");
+  a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+  a.download = "map.json";
+  a.click();
 };

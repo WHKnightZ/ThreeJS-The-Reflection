@@ -1,9 +1,9 @@
-import { baseMap, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
 import { Flag, Player, Tree } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
-import { checkCanCollide, checkIntersect, checkIsReflected, getImageSrc } from "../utils/common";
+import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "../utils/common";
 import { map } from "./map";
 import { commonTextures, flagTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes } from "./textures";
 
@@ -25,6 +25,7 @@ class Spawner {
   }
 
   updatePosition() {
+    const map = mapInfo.baseMap;
     const x = Math.floor(game.mouse.x / CELL_SIZE);
     let y = Math.floor(game.mouse.y / CELL_SIZE);
     const reflected = checkIsReflected(y);
@@ -33,7 +34,7 @@ class Spawner {
     const loopCondition = (y: number) => (reflected ? y > MAP_MAX_Y / 2 : y < MAP_MAX_Y / 2 - 1);
 
     let y2 = y - offset;
-    while (!baseMap[y]?.[x] || baseMap[y2]?.[x]) {
+    while (!map[y]?.[x] || map[y2]?.[x]) {
       if (!loopCondition(y)) {
         this.y = -1;
         return;
@@ -179,6 +180,8 @@ class TileSpawner extends Spawner {
     // let y = Math.floor(((game.mouse.y / CELL_SIZE) * game.rendererCanvas.height) / game.rendererCanvas.clientHeight);
     let x = Math.floor(game.mouse.x / CELL_SIZE);
     let y = Math.floor(game.mouse.y / CELL_SIZE);
+
+    const baseMap = mapInfo.baseMap;
 
     if (x < 0) x = 0;
     if (y < 0) y = 0;
@@ -327,10 +330,14 @@ export const createControlPanel = () => {
   createElement(explosion, cpTools, new ExplosionSpawner());
 
   const btnImport = document.getElementById("btn-import");
-  btnImport.addEventListener("click", () => {});
+  btnImport.addEventListener("click", () => {
+    importMap();
+  });
 
   const btnExport = document.getElementById("btn-export");
-  btnExport.addEventListener("click", () => {});
+  btnExport.addEventListener("click", () => {
+    exportMap();
+  });
 
   const btnPlay = document.getElementById("btn-play");
   btnPlay.addEventListener("click", () => {});

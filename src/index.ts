@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { baseMap, DRTS, flagsInfo, game, playersInfo, SCREEN_HEIGHT, SCREEN_WIDTH, treesInfo } from "./configs/constants";
+import { mapInfo, DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
 import { Background, Flag, Map, Player, Tree } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { map } from "./common/map";
-import { checkIntersect } from "./utils/common";
+import { checkIntersect, initMap } from "./utils/common";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -223,9 +223,6 @@ const init = async () => {
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
   game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
-  game.players = [];
-  game.objs = [];
-  game.explosions = [];
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 
@@ -270,18 +267,8 @@ const init = async () => {
   mesh.position.set(0, 0, 0);
   game.scene.add(mesh);
 
-  // Objects
-  map.current = new Map(baseMap);
-  const mainPlayer = new Player(playersInfo.main.x, playersInfo.main.y, DRTS.RIGHT);
-  const reflectedPlayer = new Player(playersInfo.reflected.x, playersInfo.reflected.y, DRTS.RIGHT);
-
-  game.objs.push(map.current);
-  treesInfo.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
-  flagsInfo.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
-  game.players.push(mainPlayer);
-  game.players.push(reflectedPlayer);
-  game.objs.push(mainPlayer);
-  game.objs.push(reflectedPlayer);
+  // Init map
+  initMap();
 
   registerMouseEvents();
   registerKeyboardEvents();

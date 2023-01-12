@@ -1,5 +1,5 @@
 import { playerTextures } from "../common/textures";
-import { CELL_SIZE, DRTS, baseMap as map, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "../configs/constants";
+import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "../configs/constants";
 import { checkIsReflected, drawWire } from "../utils/common";
 import { Explosion } from "./explosion";
 import { Flag } from "./flag";
@@ -35,6 +35,8 @@ export class Player extends Obj {
 
   update() {
     if (!this.isAlive) return;
+
+    const map = mapInfo.baseMap;
 
     // If hold space and player is not jumping => Jump (set velocity to a value greater than zero)
     if (this.isHoldingUp && !this.isJumping) {

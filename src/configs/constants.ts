@@ -1,11 +1,8 @@
-import mapInfo from "../maps/1.json";
 import type { Obj } from "../objects/object";
 import type { Explosion } from "../objects/explosion";
 import type { Player } from "../objects/player";
 
-const { baseMap, trees: treesInfo, players: playersInfo, flags: flagsInfo } = mapInfo;
-
-export { baseMap, treesInfo, playersInfo, flagsInfo };
+export { default as mapInfo } from "../maps/1.json";
 
 export const APP_NAME = "The Reflection";
 
