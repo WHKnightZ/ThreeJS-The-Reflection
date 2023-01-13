@@ -36,10 +36,6 @@ let controlPanel: {
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
 
-// let oldPos: number;
-// let x: number = 0;
-// let x2: number = 0;
-
 const render = (now: number = 0) => {
   requestAnimationFrame(render);
 
@@ -120,7 +116,7 @@ const render = (now: number = 0) => {
 const registerMouseEvents = () => {
   window.addEventListener("mousedown", (e) => {
     if (!rendererCanvas.contains(e.target as any)) return;
-    // oldPos = e.x;
+    game.mouse.oldPos = e.x;
     game.mouse.isDragging = true;
     game.mouse.isRightMouse = e.button === 2;
 
@@ -128,8 +124,8 @@ const registerMouseEvents = () => {
   });
 
   window.addEventListener("mouseup", () => {
-    // x = x + x2;
-    // x2 = 0;
+    game.mouse.xOffset += game.mouse.xOffsetTemp;
+    game.mouse.xOffsetTemp = 0;
     game.mouse.isDragging = false;
   });
 
@@ -145,9 +141,8 @@ const registerMouseEvents = () => {
 
     selectedControl.spawner?.spawn();
 
-    // const offset = e.x - oldPos;
-
-    // x2 = offset;
+    const offset = e.x - game.mouse.oldPos;
+    game.mouse.xOffsetTemp = offset;
   });
 
   window.addEventListener("contextmenu", (e) => {
@@ -222,7 +217,7 @@ const init = async () => {
   game.scene.background = new THREE.Color("#a5ebcc");
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
-  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false };
+  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false, oldPos: 0, xOffset: 0, xOffsetTemp: 0 };
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 

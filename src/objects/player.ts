@@ -57,22 +57,22 @@ export class Player extends Obj {
 
     // Check stop fall when the player is falling (this.v < 0)
     if (this.v <= 0) {
-      // col_left and col_right of player
-      const col_left = Math.floor((this.x - 5) / CELL_SIZE);
-      const col_right = Math.floor((this.x + 5) / CELL_SIZE);
+      // colLeft and colRight of player
+      const colLeft = Math.floor((this.x - 5) / CELL_SIZE);
+      const colRight = Math.floor((this.x + 5) / CELL_SIZE);
 
       let row = Math.floor((this.y - gravityFactor) / CELL_SIZE);
       const rowAbove = Math.floor((this.y - 5 * gravityFactor) / CELL_SIZE) + gravityFactor;
 
       // If foot left or right of player is wall => stop fall
-      if ((map[row]?.[col_left] || map[row]?.[col_right]) && !map[rowAbove]?.[col_left] && !map[rowAbove]?.[col_right]) {
+      if ((map[row]?.[colLeft] || map[row]?.[colRight]) && !map[rowAbove]?.[colLeft] && !map[rowAbove]?.[colRight]) {
         this.isJumping = false;
 
         row += gravityFactor;
 
         // do {
         //   row += 1;
-        // } while (map[row]?.[col_left] === 1 || map[row]?.[col_right] === 1);
+        // } while (map[row]?.[colLeft] === 1 || map[row]?.[colRight] === 1);
 
         this.y = (this.isReflected ? row : row + 1) * CELL_SIZE;
 
@@ -84,16 +84,17 @@ export class Player extends Obj {
     const drtFactor = offsetFactors[this.drt];
 
     if (this.isRunning) {
-      const x_middle = Math.floor(this.x / CELL_SIZE);
-      const x_edge = Math.floor((this.x + 10 * drtFactor) / CELL_SIZE);
-      const y_top = Math.floor((this.y + 12 * gravityFactor) / CELL_SIZE);
-      const y_bottom = Math.floor((this.y + gravityFactor) / CELL_SIZE);
+      const xMiddle = Math.floor(this.x / CELL_SIZE);
+      const xEdge = Math.floor((this.x + 10 * drtFactor) / CELL_SIZE);
+      const yTop = Math.floor((this.y + 12 * gravityFactor) / CELL_SIZE);
+      const yBottom = Math.floor((this.y + gravityFactor) / CELL_SIZE);
+      // If player is inside the wall, free the move
       // If player is running, check new position has the wall or not, if not, translate position by offset
-      if (map[y_top]?.[x_middle] === 1 || (map[y_top]?.[x_edge] === 0 && map[y_bottom]?.[x_edge] === 0)) {
+      if (map[yTop]?.[xMiddle] === 1 || (!map[yTop]?.[xEdge] && !map[yBottom]?.[xEdge])) {
         this.x += 4 * drtFactor;
       } else {
         // Otherwise, hold in position
-        this.x = x_edge * CELL_SIZE - 9 * drtFactor + CELL_SIZE * (1 - this.drt);
+        this.x = xEdge * CELL_SIZE - 9 * drtFactor + CELL_SIZE * (1 - this.drt);
       }
     }
 

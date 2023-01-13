@@ -38,7 +38,15 @@ export const game: {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   rendererCanvas: HTMLCanvasElement;
-  mouse: { x: number; y: number; isDragging: boolean; isRightMouse: boolean };
+  mouse: {
+    x: number; //
+    y: number;
+    isDragging: boolean;
+    isRightMouse: boolean;
+    oldPos: number;
+    xOffset: number;
+    xOffsetTemp: number;
+  };
   players: Player[];
   objs: Obj[];
   explosions: Explosion[];
