@@ -1,5 +1,4 @@
 import type { Obj } from "../objects/object";
-import type { Explosion } from "../objects/explosion";
 import type { Player } from "../objects/player";
 
 export { default as mapInfo } from "../maps/1.json";
@@ -49,7 +48,7 @@ export const game: {
   };
   players: Player[];
   objs: Obj[];
-  explosions: Explosion[];
+  particles: Obj[];
 } = {} as any;
 
 export const OBJ_LAYERS = {

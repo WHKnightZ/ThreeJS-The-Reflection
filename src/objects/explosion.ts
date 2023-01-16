@@ -9,7 +9,6 @@ export class Explosion extends Obj {
   dots: { x: number; y: number; offsetX: number; offsetY: number; size: number }[];
   size: number;
   color: string;
-  isAlive: boolean;
 
   constructor(x: number, y: number, size: number = 8, color: string = "#fd6b00") {
     super();

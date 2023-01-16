@@ -102,7 +102,7 @@ export const drawCellWire = (x: number, y: number) => {
 export const initMap = () => {
   game.players = [];
   game.objs = [];
-  game.explosions = [];
+  game.particles = [];
 
   map.current = new Map(mapInfo.baseMap);
   const players = mapInfo.players.map((player) => new Player(player.x, player.y, player.drt));

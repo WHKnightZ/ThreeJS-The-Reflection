@@ -13,6 +13,7 @@ export class Obj {
   x_: number;
   y_: number;
   id: number;
+  isAlive: boolean;
   collidedObjs: { [key: number]: boolean };
 
   constructor() {

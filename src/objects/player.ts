@@ -4,6 +4,7 @@ import { checkIsReflected, drawWire } from "../utils/common";
 import { Explosion } from "./explosion";
 import { Flag } from "./flag";
 import { Obj } from "./object";
+import { Particle } from "./particle";
 
 export class Player extends Obj {
   v: number;
@@ -13,7 +14,6 @@ export class Player extends Obj {
   stt: number;
   anim: number;
 
-  isAlive: boolean;
   isRunning: boolean;
   isJumping: boolean;
   isHoldingUp: boolean;
@@ -83,6 +83,8 @@ export class Player extends Obj {
     // Get new position of player when run to left or right (old position + offset)
     const drtFactor = offsetFactors[this.drt];
 
+    let needCreateParticle = false;
+
     if (this.isRunning) {
       const xMiddle = Math.floor(this.x / CELL_SIZE);
       const xEdge = Math.floor((this.x + 10 * drtFactor) / CELL_SIZE);
@@ -96,6 +98,8 @@ export class Player extends Obj {
         // Otherwise, hold in position
         this.x = xEdge * CELL_SIZE - 9 * drtFactor + CELL_SIZE * (1 - this.drt);
       }
+
+      if (this.t % 2 === 0 && !this.isJumping) needCreateParticle = true;
     }
 
     // Detect animation of player
@@ -111,7 +115,7 @@ export class Player extends Obj {
 
     if (checkIsReflected(Math.floor(this.y / CELL_SIZE)) !== this.isReflected) {
       this.isAlive = false;
-      game.explosions.push(new Explosion(this.x, this.y + gravityFactor * 12));
+      game.particles.push(new Explosion(this.x, this.y + gravityFactor * 12));
 
       setTimeout(() => {
         if (!this.isAlive) this.reset();
@@ -119,6 +123,13 @@ export class Player extends Obj {
     }
 
     this.t += 1;
+
+    if (needCreateParticle) {
+      const offsetX = Math.random() * 5 + 10;
+      const offsetY = Math.random() * 5 - 3;
+      game.particles.push(new Particle(this.x - drtFactor * offsetX, this.y - gravityFactor * offsetY));
+    }
+
     if (this.t === 12) {
       this.t = 0;
 

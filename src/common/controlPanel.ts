@@ -275,7 +275,7 @@ class ExplosionSpawner extends Spawner {
   spawn() {
     if (this.checkError().error || this.isPaused) return;
 
-    game.explosions.push(new Explosion(game.mouse.x, game.mouse.y));
+    game.particles.push(new Explosion(game.mouse.x, game.mouse.y));
     this.pause();
   }
 }

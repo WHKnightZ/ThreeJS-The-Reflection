@@ -59,11 +59,11 @@ const render = (now: number = 0) => {
 
   // Explosion
   let needUpdateExplosions = false;
-  game.explosions.forEach((obj) => {
+  game.particles.forEach((obj) => {
     obj.update();
     needUpdateExplosions = needUpdateExplosions || !obj.isAlive;
   });
-  if (needUpdateExplosions) game.explosions = game.explosions.filter((obj) => obj.isAlive);
+  if (needUpdateExplosions) game.particles = game.particles.filter((obj) => obj.isAlive);
 
   // Collision
   for (let i = 0; i < game.objs.length - 1; i += 1) {
@@ -97,7 +97,7 @@ const render = (now: number = 0) => {
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
   controlPanel.renderer();
 
-  game.explosions.forEach((obj) => obj.render());
+  game.particles.forEach((obj) => obj.render());
 
   selectedControl.spawner?.render();
 
