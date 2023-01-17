@@ -26,7 +26,7 @@ class Spawner {
 
   updatePosition() {
     const map = mapInfo.baseMap;
-    const x = Math.floor(game.mouse.x / CELL_SIZE);
+    const x = Math.floor(game.mouse.xWithOffset / CELL_SIZE);
     let y = Math.floor(game.mouse.y / CELL_SIZE);
     const reflected = checkIsReflected(y);
     const offset = REFLECTED_OFFSETS[reflected];
@@ -50,7 +50,7 @@ class Spawner {
     error: boolean;
     show: boolean;
   } {
-    if (game.mouse.x < 0) return { error: true, show: false };
+    if (game.mouse.xWithOffset < 0) return { error: true, show: false };
 
     if (this.y >= MAP_MAX_Y || this.y < 0) return { error: true, show: false };
     return { error: false, show: true };

@@ -45,6 +45,7 @@ export const game: {
     oldPos: number;
     xOffset: number;
     xOffsetTemp: number;
+    xWithOffset: number;
   };
   players: Player[];
   objs: Obj[];

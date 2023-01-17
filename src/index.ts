@@ -100,7 +100,7 @@ const render = (now: number = 0) => {
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
-  game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 200);
+  if (game.mouse.xOffset + game.mouse.xOffsetTemp) game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 100);
 
   game.renderer.render(game.scene, game.camera);
 };
@@ -128,8 +128,10 @@ const registerMouseEvents = () => {
     if (rendererCanvas.contains(e.target as any)) {
       game.mouse.x = e.offsetX;
       game.mouse.y = e.offsetY;
+      game.mouse.xWithOffset = game.mouse.x - game.mouse.xOffset;
     } else {
       game.mouse.x = game.mouse.y = -1;
+      game.mouse.xWithOffset = -1;
     }
 
     if (!game.mouse.isDragging) return;
@@ -214,7 +216,7 @@ const init = async () => {
   game.scene.background = new THREE.Color("#a5ebcc");
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
-  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false, oldPos: 0, xOffset: 0, xOffsetTemp: 0 };
+  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false, oldPos: 0, xOffset: 0, xOffsetTemp: 0, xWithOffset: 0 };
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 
