@@ -285,14 +285,12 @@ export let selectedControl: {
   spawner?: Spawner;
 } = {};
 
-export let useHandTool = false;
-
 export const createControlPanel = () => {
   const createElement = (img: HTMLImageElement, parent: HTMLElement, spawner?: Spawner | null, onClick?: (() => void) | null) => {
     const element = img.cloneNode() as HTMLImageElement;
     element.addEventListener("click", () => {
       if (element === selectedControl.element) return;
-      useHandTool = false;
+      game.useHandTool = false;
 
       onClick?.();
 
@@ -320,7 +318,7 @@ export const createControlPanel = () => {
   const hand = new Image();
   hand.src = getImageSrc("hand");
   createElement(hand, cpTools, null, () => {
-    useHandTool = true;
+    game.useHandTool = true;
   });
   const remove = new Image();
   remove.src = getImageSrc("remove");
@@ -346,15 +344,4 @@ export const createControlPanel = () => {
   btnReset.addEventListener("click", () => {
     game.players.forEach((player) => player.reset());
   });
-
-  const updater = () => {
-    if (game.mouse.isDragging && game.mouse.x >= 0) {
-      if (useHandTool) {
-      }
-    }
-  };
-
-  const renderer = () => {};
-
-  return { updater, renderer };
 };

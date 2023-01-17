@@ -1,12 +1,11 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { mapInfo, DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
-import { Background, Flag, Map, Player, Tree } from "./objects";
+import { Background } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { map } from "./common/map";
 import { checkIntersect, initMap } from "./utils/common";
 
 const stats: Stats = new (Stats as any)();
@@ -27,11 +26,6 @@ let mesh: THREE.Mesh;
 let background: Background;
 let texture: THREE.Texture;
 let waterTexture: THREE.Texture;
-
-let controlPanel: {
-  updater: () => void;
-  renderer: () => void;
-};
 
 const waterCanvas = document.createElement("canvas");
 const waterContext = waterCanvas.getContext("2d");
@@ -55,7 +49,6 @@ const render = (now: number = 0) => {
   material.uniforms.uTime.value = total;
 
   game.objs.forEach((obj) => obj.update?.());
-  controlPanel.updater();
 
   // Explosion
   let needUpdateExplosions = false;
@@ -95,7 +88,6 @@ const render = (now: number = 0) => {
 
   background.render();
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
-  controlPanel.renderer();
 
   game.particles.forEach((obj) => obj.render());
 
@@ -108,7 +100,7 @@ const render = (now: number = 0) => {
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
-  // game.scene.position.setX((x + x2) / 200);
+  game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 200);
 
   game.renderer.render(game.scene, game.camera);
 };
@@ -124,9 +116,12 @@ const registerMouseEvents = () => {
   });
 
   window.addEventListener("mouseup", () => {
-    game.mouse.xOffset += game.mouse.xOffsetTemp;
-    game.mouse.xOffsetTemp = 0;
     game.mouse.isDragging = false;
+
+    if (game.useHandTool) {
+      game.mouse.xOffset += game.mouse.xOffsetTemp;
+      game.mouse.xOffsetTemp = 0;
+    }
   });
 
   window.addEventListener("mousemove", (e) => {
@@ -141,8 +136,10 @@ const registerMouseEvents = () => {
 
     selectedControl.spawner?.spawn();
 
-    const offset = e.x - game.mouse.oldPos;
-    game.mouse.xOffsetTemp = offset;
+    if (game.useHandTool) {
+      const offset = e.x - game.mouse.oldPos;
+      game.mouse.xOffsetTemp = offset;
+    }
   });
 
   window.addEventListener("contextmenu", (e) => {
@@ -230,7 +227,7 @@ const init = async () => {
   // await new Promise((resolve) => setTimeout(() => resolve(null), 100000));
   loading.end();
 
-  controlPanel = createControlPanel();
+  createControlPanel();
 
   game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
 
