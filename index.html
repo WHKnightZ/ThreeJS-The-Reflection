@@ -10,8 +10,29 @@
     <title>ThreeJS The Reflection</title>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
-    <div id="control-panel">
+    <div class="canvas-container">
+      <div id="object-detail" class="card" style="opacity: 0; transition: opacity 0.3s ease">
+        <div class="title">Object Detail</div>
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <img
+            style="
+              width: 100px;
+              height: 100px;
+              margin: 8px 0 6px;
+              object-fit: scale-down;
+              border-radius: 4px;
+              background-color: #92ebd35f;
+            "
+            alt=""
+            id="object-detail-img"
+          />
+          <div id="object-detail-name" style="font-weight: 500"></div>
+          <div id="object-detail-more"></div>
+        </div>
+      </div>
+      <canvas id="canvas"></canvas>
+    </div>
+    <div id="control-panel" class="card">
       <div class="title">Control Panel</div>
       <div class="cp-wrapper">
         Player

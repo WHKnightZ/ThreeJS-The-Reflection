@@ -15,6 +15,7 @@ export class Obj {
   id: number;
   isAlive: boolean;
   collidedObjs: { [key: number]: boolean };
+  name: string;
 
   constructor() {
     this.id = objId;
@@ -25,6 +26,7 @@ export class Obj {
 
   setLayer() {
     const layer = this.constructor.name.toUpperCase();
+    this.name = this.constructor.name + this.id;
     this.layer = OBJ_LAYERS[layer];
     this.priority = OBJ_PRIORITIES[layer];
   }

@@ -192,7 +192,9 @@ const loadPlayerTextures = async () => {
 
   await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
   const keys = Object.keys(rightImages);
-  await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img))));
+  await Promise.all(
+    keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img)))
+  );
 
   const mainTextures = [
     [
@@ -206,7 +208,11 @@ const loadPlayerTextures = async () => {
       [rightImages.jump0, rightImages.jump1],
     ],
   ];
-  const reflectedTextures = await Promise.all(mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c)))))));
+  const reflectedTextures = await Promise.all(
+    mainTextures.map(
+      async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c)))))
+    )
+  );
 
   playerTextures = [mainTextures, reflectedTextures];
 };
@@ -233,7 +239,9 @@ const loadTreeTextures = async () => {
   };
 
   await Promise.all(Object.keys(imageSrcs).map((key) => loadImage(key, imageSrcs[key])));
-  await Promise.all(Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
+  await Promise.all(
+    Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img)))
+  );
 };
 
 // Flag
@@ -255,6 +263,22 @@ const loadFlagTextures = async () => {
   await Promise.all(flagKeys.map((i) => flipVertical(flagTextures[0][i], (img) => (flagTextures[1][i] = img))));
 };
 
+// Wall
+export type WallTexture = HTMLImageElement;
+
+export let wallTexture: WallTexture;
+
+const loadWallTextures = async () => {
+  const loadImage = () => {
+    const image = new Image();
+    wallTexture = image;
+    image.src = getImageSrc("wall");
+    return new Promise((res) => (image.onload = () => res(image)));
+  };
+
+  await loadImage();
+};
+
 // All
 export const loadTextures = async () => {
   await Promise.all([
@@ -264,5 +288,6 @@ export const loadTextures = async () => {
     loadPlayerTextures(),
     loadTreeTextures(),
     loadFlagTextures(),
+    loadWallTextures(),
   ]);
 };

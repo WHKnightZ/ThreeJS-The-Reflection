@@ -6,7 +6,7 @@ import { loadTextures } from "./common/textures";
 import { Background } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { checkIntersect, initMap } from "./utils/common";
+import { checkIntersect, getClickedObject, initMap } from "./utils/common";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -93,19 +93,35 @@ const render = (now: number = 0) => {
 
   selectedControl.spawner?.render();
 
-  waterContext.drawImage(game.canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
+  waterContext.drawImage(
+    game.canvas,
+    0,
+    SCREEN_HEIGHT / 2,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT / 2,
+    0,
+    0,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT / 2
+  );
 
   stats.update();
 
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
-  if (game.mouse.xOffset + game.mouse.xOffsetTemp) game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 100);
+  if (game.mouse.xOffset + game.mouse.xOffsetTemp)
+    game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 100);
 
   game.renderer.render(game.scene, game.camera);
 };
 
 const registerMouseEvents = () => {
+  const objectDetail = document.getElementById("object-detail");
+  const objectDetailImg = document.getElementById("object-detail-img") as HTMLImageElement;
+  const objectDetailName = document.getElementById("object-detail-name") as HTMLDivElement;
+  const objectDetailMore = document.getElementById("object-detail-more") as HTMLDivElement;
+
   window.addEventListener("mousedown", (e) => {
     if (!rendererCanvas.contains(e.target as any)) return;
     game.mouse.oldPos = e.x;
@@ -113,6 +129,17 @@ const registerMouseEvents = () => {
     game.mouse.isRightMouse = e.button === 2;
 
     selectedControl.spawner?.spawn();
+
+    if (game.useSelectTool) {
+      game.selected = getClickedObject(e.offsetX, e.offsetY);
+
+      objectDetail.style.opacity = game.selected ? "1" : "0";
+
+      if (!game.selected) return;
+
+      objectDetailImg.src = game.selected.texture.src;
+      objectDetailName.innerHTML = game.selected.name;
+    }
   });
 
   window.addEventListener("mouseup", () => {
@@ -216,7 +243,16 @@ const init = async () => {
   game.scene.background = new THREE.Color("#a5ebcc");
   game.camera = new THREE.PerspectiveCamera(35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 1000);
   game.camera.position.set(0, 0, 15);
-  game.mouse = { x: -1, y: -1, isDragging: false, isRightMouse: false, oldPos: 0, xOffset: 0, xOffsetTemp: 0, xWithOffset: 0 };
+  game.mouse = {
+    x: -1,
+    y: -1,
+    isDragging: false,
+    isRightMouse: false,
+    oldPos: 0,
+    xOffset: 0,
+    xOffsetTemp: 0,
+    xWithOffset: 0,
+  };
 
   // new OrbitControls(game.camera, game.renderer.domElement);
 
@@ -231,7 +267,12 @@ const init = async () => {
 
   createControlPanel();
 
-  game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
+  game.renderer.setViewport(
+    -SCREEN_WIDTH / 2,
+    -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4,
+    SCREEN_WIDTH * 2,
+    SCREEN_HEIGHT * 2
+  );
 
   background = new Background();
 

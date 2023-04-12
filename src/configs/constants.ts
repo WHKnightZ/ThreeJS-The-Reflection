@@ -50,7 +50,9 @@ export const game: {
   players: Player[];
   objs: Obj[];
   particles: Obj[];
+  useSelectTool: boolean;
   useHandTool: boolean;
+  selected: Obj | null;
 } = {} as any;
 
 export const OBJ_LAYERS = {

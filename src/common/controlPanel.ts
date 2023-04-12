@@ -1,4 +1,13 @@
-import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
+import {
+  mapInfo,
+  CELL_SIZE,
+  DRTS,
+  game,
+  MAP_MAX_X,
+  MAP_MAX_Y,
+  OBJ_LAYERS,
+  REFLECTED_OFFSETS,
+} from "../configs/constants";
 import { Flag, Player, Tree } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
@@ -57,7 +66,9 @@ class Spawner {
   }
 
   checkCollide() {
-    return game.objs.some((obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea()));
+    return game.objs.some(
+      (obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea())
+    );
   }
 
   render(): void {}
@@ -229,7 +240,9 @@ class FlagSpawner extends Spawner {
   spawn() {
     if (this.checkError().error || this.isPaused) return;
 
-    const sameDrtObj = game.objs.find((obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y));
+    const sameDrtObj = game.objs.find(
+      (obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y)
+    );
     if (sameDrtObj) sameDrtObj.set(this.x, this.y);
     else game.objs.push(new Flag(this.x, this.y));
     this.pause();
@@ -286,10 +299,16 @@ export let selectedControl: {
 } = {};
 
 export const createControlPanel = () => {
-  const createElement = (img: HTMLImageElement, parent: HTMLElement, spawner?: Spawner | null, onClick?: (() => void) | null) => {
+  const createElement = (
+    img: HTMLImageElement,
+    parent: HTMLElement,
+    spawner?: Spawner | null,
+    onClick?: (() => void) | null
+  ) => {
     const element = img.cloneNode() as HTMLImageElement;
     element.addEventListener("click", () => {
       if (element === selectedControl.element) return;
+      game.useSelectTool = false;
       game.useHandTool = false;
 
       onClick?.();
@@ -309,12 +328,18 @@ export const createControlPanel = () => {
   const tileSpawner = new TileSpawner();
   createElement(mappingTiles[0], cpObjects, tileSpawner);
   createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
+  createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
   const cpTrees = document.getElementById("cp-trees");
   createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
   createElement(treeTextures[0].treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));
   createElement(treeTextures[0].treePalm, cpTrees, new TreeSpawner("treePalm"));
   createElement(treeTextures[0].treePalmSmall, cpTrees, new TreeSpawner("treePalmSmall"));
   const cpTools = document.getElementById("cp-tools");
+  const select = new Image();
+  select.src = getImageSrc("select");
+  createElement(select, cpTools, null, () => {
+    game.useSelectTool = true;
+  });
   const hand = new Image();
   hand.src = getImageSrc("hand");
   createElement(hand, cpTools, null, () => {
