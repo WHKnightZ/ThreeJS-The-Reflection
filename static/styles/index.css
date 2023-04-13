@@ -80,17 +80,22 @@ button i {
   column-gap: 8px;
   margin: 4px 0 8px;
 }
-#control-panel .cp-wrapper > div img {
-  width: 32px;
-  height: 32px;
+#control-panel .cp-wrapper > div div {
+  width: 36px;
+  height: 36px;
   padding: 2px;
   cursor: pointer;
-  object-fit: scale-down;
   background-color: #92ebd3;
   border-radius: 4px;
   transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
-#control-panel .cp-wrapper > div img.selected {
+#control-panel .cp-wrapper > div div img {
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+}
+#control-panel .cp-wrapper > div div.selected {
   background-color: #5cd0e4;
 }
 #control-panel .cp-buttons {

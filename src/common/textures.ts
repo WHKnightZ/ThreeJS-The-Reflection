@@ -279,6 +279,22 @@ const loadWallTextures = async () => {
   await loadImage();
 };
 
+// Switch
+export type SwitchTextures = HTMLImageElement[];
+
+export let switchTextures: SwitchTextures = Array.from({ length: 3 });
+
+const loadSwitchTextures = async () => {
+  const loadImage = (index: number) => {
+    const image = new Image();
+    switchTextures[index] = image;
+    image.src = getImageSrc(`switch-${index}`);
+    return new Promise((res) => (image.onload = () => res(image)));
+  };
+
+  await Promise.all(switchTextures.map((_, i) => loadImage(i)));
+};
+
 // All
 export const loadTextures = async () => {
   await Promise.all([
@@ -289,5 +305,6 @@ export const loadTextures = async () => {
     loadTreeTextures(),
     loadFlagTextures(),
     loadWallTextures(),
+    loadSwitchTextures(),
   ]);
 };

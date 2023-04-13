@@ -8,13 +8,21 @@ import {
   OBJ_LAYERS,
   REFLECTED_OFFSETS,
 } from "../configs/constants";
-import { Flag, Player, Tree } from "../objects";
+import { Flag, Player, Tree, Wall } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "../utils/common";
 import { map } from "./map";
-import { commonTextures, flagTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes } from "./textures";
+import {
+  commonTextures,
+  flagTextures,
+  mappingTiles,
+  playerTextures,
+  treeTextures,
+  TreeTextureTypes,
+  wallTexture,
+} from "./textures";
 
 class Spawner {
   x: number;
@@ -249,6 +257,62 @@ class FlagSpawner extends Spawner {
   }
 }
 
+class WallSpawner extends Spawner {
+  constructor() {
+    super();
+    this.obj = new Wall(0, 0);
+  }
+
+  updatePosition() {
+    const x = Math.floor(game.mouse.xWithOffset / CELL_SIZE);
+    const y = Math.floor(game.mouse.y / CELL_SIZE);
+    this.x = x;
+    this.y = y;
+  }
+
+  checkError() {
+    const { error, show } = super.checkError();
+    if (error) return { error, show };
+
+    const collided = this.checkCollide();
+
+    if (collided) return { error: collided, show: true };
+
+    const map = mapInfo.baseMap;
+
+    return {
+      error:
+        !!map[this.y][this.x] ||
+        !!map[this.y - 1][this.x] ||
+        !!map[this.y][this.x - 1] ||
+        !!map[this.y - 1][this.x - 1],
+      show: true,
+    };
+  }
+
+  render() {
+    this.updatePosition();
+    const { error, show } = this.checkError();
+    if (!show) return;
+    game.context.globalAlpha = 0.6;
+    this.obj.set(this.x, this.y);
+    this.obj.render();
+    if (error) this.renderError();
+    game.context.globalAlpha = 1;
+  }
+
+  getArea(): Rectangle {
+    return this.obj.getArea();
+  }
+
+  spawn() {
+    if (this.checkError().error || this.isPaused) return;
+
+    game.objs.push(new Wall(this.x, this.y));
+    this.pause();
+  }
+}
+
 class RemoveSpawner extends Spawner {
   tileSpawner: TileSpawner;
 
@@ -303,9 +367,13 @@ export const createControlPanel = () => {
     img: HTMLImageElement,
     parent: HTMLElement,
     spawner?: Spawner | null,
-    onClick?: (() => void) | null
+    onClick?: (() => void) | null,
+    padding?: string
   ) => {
-    const element = img.cloneNode() as HTMLImageElement;
+    const newImg = img.cloneNode() as HTMLImageElement;
+    const element = document.createElement("div");
+    element.appendChild(newImg);
+    if (padding) element.style.padding = padding;
     element.addEventListener("click", () => {
       if (element === selectedControl.element) return;
       game.useSelectTool = false;
@@ -328,7 +396,7 @@ export const createControlPanel = () => {
   const tileSpawner = new TileSpawner();
   createElement(mappingTiles[0], cpObjects, tileSpawner);
   createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
-  createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
+  createElement(wallTexture, cpObjects, new WallSpawner(), () => {}, "6px");
   const cpTrees = document.getElementById("cp-trees");
   createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
   createElement(treeTextures[0].treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));
