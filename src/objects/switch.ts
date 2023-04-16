@@ -3,6 +3,9 @@ import { CELL_SIZE, game } from "../configs/constants";
 // import { drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
 
+const WIDTH = 32;
+const HEIGHT = 24;
+
 export class Switch extends Obj {
   constructor(x: number, y: number) {
     super();
