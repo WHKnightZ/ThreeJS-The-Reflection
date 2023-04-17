@@ -85,3 +85,5 @@ export const COLLISION_MATRIX = [
 export const REFLECTED_OFFSETS = [1, -1];
 
 export const FLAG_MAX_ANIM = 9;
+
+export const SWITCH_MAX_ANIM = 3;

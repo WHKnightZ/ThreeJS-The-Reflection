@@ -1,4 +1,4 @@
-import { CELL_SIZE, FLAG_MAX_ANIM } from "../configs/constants";
+import { CELL_SIZE, FLAG_MAX_ANIM, SWITCH_MAX_ANIM } from "../configs/constants";
 import { flipHorizontal, flipVertical, getImageSrc } from "../utils/common";
 
 export let backgroundTexture: HTMLImageElement;
@@ -280,19 +280,22 @@ const loadWallTextures = async () => {
 };
 
 // Switch
-export type SwitchTextures = HTMLImageElement[];
+export type SwitchTextures = HTMLImageElement[][];
 
-export let switchTextures: SwitchTextures = Array.from({ length: 3 });
+const switchKeys = Array.from({ length: SWITCH_MAX_ANIM }).map((_, i) => i);
+
+export const switchTextures: SwitchTextures = [0, 1].map(() => [...switchKeys]) as any;
 
 const loadSwitchTextures = async () => {
   const loadImage = (index: number) => {
     const image = new Image();
-    switchTextures[index] = image;
+    switchTextures[0][index] = image;
     image.src = getImageSrc(`switch-${index}`);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
-  await Promise.all(switchTextures.map((_, i) => loadImage(i)));
+  await Promise.all(switchKeys.map((_, i) => loadImage(i)));
+  await Promise.all(switchKeys.map((i) => flipVertical(switchTextures[0][i], (img) => (switchTextures[1][i] = img))));
 };
 
 // All

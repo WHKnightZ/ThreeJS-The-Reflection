@@ -1,28 +1,11 @@
-import {
-  mapInfo,
-  CELL_SIZE,
-  DRTS,
-  game,
-  MAP_MAX_X,
-  MAP_MAX_Y,
-  OBJ_LAYERS,
-  REFLECTED_OFFSETS,
-} from "../configs/constants";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
 import { Flag, Player, Tree, Wall } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "../utils/common";
 import { map } from "./map";
-import {
-  commonTextures,
-  flagTextures,
-  mappingTiles,
-  playerTextures,
-  treeTextures,
-  TreeTextureTypes,
-  wallTexture,
-} from "./textures";
+import { commonTextures, flagTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes, wallTexture } from "./textures";
 
 class Spawner {
   x: number;
@@ -74,9 +57,7 @@ class Spawner {
   }
 
   checkCollide() {
-    return game.objs.some(
-      (obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea())
-    );
+    return game.objs.some((obj) => obj.getArea && checkCanCollide(this.obj, obj) && checkIntersect(this.obj.getArea(), obj.getArea()));
   }
 
   render(): void {}
@@ -248,9 +229,7 @@ class FlagSpawner extends Spawner {
   spawn() {
     if (this.checkError().error || this.isPaused) return;
 
-    const sameDrtObj = game.objs.find(
-      (obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y)
-    );
+    const sameDrtObj = game.objs.find((obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y));
     if (sameDrtObj) sameDrtObj.set(this.x, this.y);
     else game.objs.push(new Flag(this.x, this.y));
     this.pause();
@@ -264,8 +243,9 @@ class WallSpawner extends Spawner {
   }
 
   updatePosition() {
-    const x = Math.floor(game.mouse.xWithOffset / CELL_SIZE);
-    const y = Math.floor(game.mouse.y / CELL_SIZE);
+    const isReflected = !!checkIsReflected(Math.floor(game.mouse.y / CELL_SIZE));
+    const x = Math.floor((game.mouse.xWithOffset - 16) / CELL_SIZE);
+    const y = Math.floor((game.mouse.y + (isReflected ? -32 : 24)) / CELL_SIZE);
     this.x = x;
     this.y = y;
   }
@@ -281,11 +261,7 @@ class WallSpawner extends Spawner {
     const map = mapInfo.baseMap;
 
     return {
-      error:
-        !!map[this.y][this.x] ||
-        !!map[this.y - 1][this.x] ||
-        !!map[this.y][this.x - 1] ||
-        !!map[this.y - 1][this.x - 1],
+      error: !!map[this.y - 1][this.x] || !!map[this.y - 2][this.x] || !!map[this.y - 1][this.x + 1] || !!map[this.y - 2][this.x + 1],
       show: true,
     };
   }
@@ -363,13 +339,7 @@ export let selectedControl: {
 } = {};
 
 export const createControlPanel = () => {
-  const createElement = (
-    img: HTMLImageElement,
-    parent: HTMLElement,
-    spawner?: Spawner | null,
-    onClick?: (() => void) | null,
-    padding?: string
-  ) => {
+  const createElement = (img: HTMLImageElement, parent: HTMLElement, spawner?: Spawner | null, onClick?: (() => void) | null, padding?: string) => {
     const newImg = img.cloneNode() as HTMLImageElement;
     const element = document.createElement("div");
     element.appendChild(newImg);

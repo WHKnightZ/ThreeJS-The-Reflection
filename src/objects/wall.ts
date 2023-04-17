@@ -1,10 +1,7 @@
 import { wallTexture } from "../common/textures";
 import { CELL_SIZE, game } from "../configs/constants";
-// import { drawCellWire, drawWire } from "../utils/common";
+import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
-
-const WIDTH = 32;
-const HEIGHT = 32;
 
 export class Wall extends Obj {
   constructor(x: number, y: number) {
@@ -15,26 +12,27 @@ export class Wall extends Obj {
   set(x: number, y: number) {
     this.x_ = x;
     this.y_ = y;
-    this.x = x * CELL_SIZE - CELL_SIZE;
-    this.y = y * CELL_SIZE - CELL_SIZE;
     this.texture = wallTexture;
+    this.x = x * CELL_SIZE;
+    this.y = y * CELL_SIZE - this.texture.height;
   }
 
   update() {}
 
   render() {
-    game.context.drawImage(this.texture, this.x, this.y);
-    // drawCellWire(this.x_, this.y_);
-    // const { x, y, w, h } = this.getArea();
-    // drawWire(x, y, w, h);
+    game.context.drawImage(this.texture, this.x, this.y + (checkIsReflected(this.y_) ? this.texture.height + CELL_SIZE : 0));
+    drawCellWire(this.x_, this.y_);
+    const { x, y, w, h } = this.getArea();
+    drawWire(x, y, w, h);
   }
 
   getArea() {
+    const areaHeight = this.texture.height;
     return {
       x: this.x,
-      y: this.y,
-      w: WIDTH,
-      h: HEIGHT,
+      y: this.y + (checkIsReflected(this.y_) ? areaHeight + CELL_SIZE : 0),
+      w: this.texture.width,
+      h: areaHeight,
     };
   }
 }

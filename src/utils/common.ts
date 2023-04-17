@@ -1,6 +1,6 @@
 import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
 import type { Obj } from "../objects/object";
-import { Flag, Player, Tree } from "../objects";
+import { Flag, Player, Tree, Wall, Switch } from "../objects";
 import { Map } from "../objects";
 import { Rectangle } from "../types";
 import { map } from "../common/map";
@@ -110,6 +110,8 @@ export const initMap = () => {
   game.objs.push(map.current);
   mapInfo.trees.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
   mapInfo.flags.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
+  mapInfo.walls.forEach(({ x, y }) => game.objs.push(new Wall(x, y)));
+  mapInfo.switches.forEach(({ x, y }) => game.objs.push(new Switch(x, y)));
   game.players = players;
   players.forEach((player) => game.objs.push(player));
 };
@@ -132,6 +134,8 @@ export const importMap = () => {
         mapInfo.players = newMapInfo.players;
         mapInfo.trees = newMapInfo.trees;
         mapInfo.flags = newMapInfo.flags;
+        mapInfo.walls = newMapInfo.walls;
+        mapInfo.switches = newMapInfo.switches;
         initMap();
       } catch {}
     };
