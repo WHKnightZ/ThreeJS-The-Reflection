@@ -245,7 +245,7 @@ class WallSpawner extends Spawner {
   updatePosition() {
     const isReflected = !!checkIsReflected(Math.floor(game.mouse.y / CELL_SIZE));
     const x = Math.floor((game.mouse.xWithOffset - 16) / CELL_SIZE);
-    const y = Math.floor((game.mouse.y + (isReflected ? -32 : 24)) / CELL_SIZE);
+    const y = Math.floor((game.mouse.y + (isReflected ? -24 : 24)) / CELL_SIZE);
     this.x = x;
     this.y = y;
   }
