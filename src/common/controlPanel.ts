@@ -1,4 +1,4 @@
-import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS } from "../configs/constants";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, offsetFactors } from "../configs/constants";
 import { Flag, Player, Tree, Wall } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
@@ -222,7 +222,7 @@ class FlagSpawner extends Spawner {
     game.context.globalAlpha = 1;
   }
 
-  getArea(): Rectangle {
+  getArea() {
     return this.obj.getArea();
   }
 
@@ -237,6 +237,8 @@ class FlagSpawner extends Spawner {
 }
 
 class WallSpawner extends Spawner {
+  declare obj: Wall;
+
   constructor() {
     super();
     this.obj = new Wall(0, 0);
@@ -248,11 +250,19 @@ class WallSpawner extends Spawner {
     const y = Math.floor((game.mouse.y + (isReflected ? -24 : 24)) / CELL_SIZE);
     this.x = x;
     this.y = y;
+    this.obj.setIsReflected(isReflected);
   }
 
   checkError() {
     const { error, show } = super.checkError();
     if (error) return { error, show };
+
+    const y = Math.floor(game.mouse.y / CELL_SIZE);
+    const middle = MAP_MAX_Y / 2;
+
+    console.log(this.y, y);
+
+    if (y >= middle - 1 && y <= middle + 1) return { error: true, show: true };
 
     const collided = this.checkCollide();
 
@@ -260,8 +270,15 @@ class WallSpawner extends Spawner {
 
     const map = mapInfo.baseMap;
 
+    const isReflected = this.obj.isReflected;
+    const factor = isReflected ? -1 : 1;
+
     return {
-      error: !!map[this.y - 1][this.x] || !!map[this.y - 2][this.x] || !!map[this.y - 1][this.x + 1] || !!map[this.y - 2][this.x + 1],
+      error:
+        !!map[this.y - 1 * factor][this.x] ||
+        !!map[this.y - 2 * factor][this.x] ||
+        !!map[this.y - 1 * factor][this.x + 1] ||
+        !!map[this.y - 2 * factor][this.x + 1],
       show: true,
     };
   }

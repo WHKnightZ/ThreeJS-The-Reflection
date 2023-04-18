@@ -4,9 +4,16 @@ import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
 
 export class Wall extends Obj {
+  isReflected: boolean;
+
   constructor(x: number, y: number) {
     super();
     this.set(x, y);
+    this.isReflected = !!checkIsReflected(y);
+  }
+
+  setIsReflected(_isReflected: boolean) {
+    this.isReflected = _isReflected;
   }
 
   set(x: number, y: number) {
@@ -20,17 +27,17 @@ export class Wall extends Obj {
   update() {}
 
   render() {
-    game.context.drawImage(this.texture, this.x, this.y + (checkIsReflected(this.y_) ? this.texture.height + CELL_SIZE : 0));
-    drawCellWire(this.x_, this.y_);
-    const { x, y, w, h } = this.getArea();
-    drawWire(x, y, w, h);
+    game.context.drawImage(this.texture, this.x, this.y + (this.isReflected ? this.texture.height + CELL_SIZE : 0));
+    // drawCellWire(this.x_, this.y_);
+    // const { x, y, w, h } = this.getArea();
+    // drawWire(x, y, w, h);
   }
 
   getArea() {
     const areaHeight = this.texture.height;
     return {
       x: this.x,
-      y: this.y + (checkIsReflected(this.y_) ? areaHeight + CELL_SIZE : 0),
+      y: this.y + (this.isReflected ? areaHeight + CELL_SIZE : 0),
       w: this.texture.width,
       h: areaHeight,
     };
