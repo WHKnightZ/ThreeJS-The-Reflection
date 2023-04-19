@@ -1,5 +1,5 @@
 import { switchTextures } from "../common/textures";
-import { CELL_SIZE, FLAG_MAX_ANIM, game, SWITCH_MAX_ANIM } from "../configs/constants";
+import { CELL_SIZE, game, OBJ_LAYERS, SWITCH_MAX_ANIM } from "../configs/constants";
 import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
 
@@ -12,6 +12,7 @@ export class Switch extends Obj {
     this.isSwitching = false;
     this.anim = 0;
     this.set(x, y);
+    this.linkedObjs = [];
   }
 
   set(x: number, y: number) {
@@ -22,10 +23,17 @@ export class Switch extends Obj {
     this.texture = switchTextures[checkIsReflected(this.y_)][this.anim];
   }
 
+  reset() {
+    this.isSwitching = false;
+  }
+
   update() {
     if (this.isSwitching) {
       this.anim += 1;
       if (this.anim >= SWITCH_MAX_ANIM) this.anim = SWITCH_MAX_ANIM - 1;
+    } else {
+      this.anim -= 1;
+      if (this.anim < 0) this.anim = 0;
     }
 
     this.texture = switchTextures[checkIsReflected(this.y_)][this.anim];
@@ -50,5 +58,15 @@ export class Switch extends Obj {
       w: this.texture.width / 2,
       h: areaHeight,
     };
+  }
+
+  onSelectLinkedObj(obj: Obj) {
+    if (obj.layer !== OBJ_LAYERS.WALL) return;
+    if (this.linkedObjs.includes(obj)) return;
+
+    obj.linkedObjs.push(this);
+    this.linkedObjs.push(obj);
+    game.useSelectLinkedObject = false;
+    game.updateObjectDetailMore();
   }
 }

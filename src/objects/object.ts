@@ -16,6 +16,7 @@ export class Obj {
   isAlive: boolean;
   collidedObjs: { [key: number]: boolean };
   name: string;
+  linkedObjs?: Obj[] | undefined;
 
   constructor() {
     this.id = objId;
@@ -36,6 +37,8 @@ export class Obj {
   update?(): void;
   getArea?(): Rectangle;
   reset?(): void;
+
+  onSelectLinkedObj?(obj: Obj): void;
 
   // Event
   onEnterObject?(obj: Obj): void;

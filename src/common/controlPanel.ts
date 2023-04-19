@@ -1,11 +1,11 @@
-import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, offsetFactors } from "../configs/constants";
-import { Flag, Player, Tree, Wall } from "../objects";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, SCREEN_HEIGHT } from "../configs/constants";
+import { Flag, Player, Switch, Tree, Wall } from "../objects";
 import { Explosion } from "../objects/explosion";
 import { Obj } from "../objects/object";
 import { Rectangle } from "../types";
 import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "../utils/common";
 import { map } from "./map";
-import { commonTextures, flagTextures, mappingTiles, playerTextures, treeTextures, TreeTextureTypes, wallTexture } from "./textures";
+import { commonTextures, flagTextures, mappingTiles, playerTextures, switchTexture, treeTextures, TreeTextureTypes, wallTexture } from "./textures";
 
 class Spawner {
   x: number;
@@ -82,7 +82,7 @@ class PlayerSpawner extends Spawner {
   drt: number;
 
   constructor(drt: number) {
-    super();
+    super(200);
     this.drt = drt;
     this.obj = new Player(0, 0);
   }
@@ -257,12 +257,10 @@ class WallSpawner extends Spawner {
     const { error, show } = super.checkError();
     if (error) return { error, show };
 
-    const y = Math.floor(game.mouse.y / CELL_SIZE);
-    const middle = MAP_MAX_Y / 2;
+    const y = game.mouse.y;
+    const middle = SCREEN_HEIGHT / 2;
 
-    console.log(this.y, y);
-
-    if (y >= middle - 1 && y <= middle + 1) return { error: true, show: true };
+    if (y >= middle - 24 && y <= middle + 24) return { error: true, show: true };
 
     const collided = this.checkCollide();
 
@@ -302,6 +300,44 @@ class WallSpawner extends Spawner {
     if (this.checkError().error || this.isPaused) return;
 
     game.objs.push(new Wall(this.x, this.y));
+    this.pause();
+  }
+}
+
+class SwitchSpawner extends Spawner {
+  constructor() {
+    super();
+    this.obj = new Switch(0, 0);
+  }
+
+  checkError() {
+    const { error, show } = super.checkError();
+    if (error) return { error, show };
+
+    const collided = this.checkCollide();
+
+    return { error: collided, show: true };
+  }
+
+  render() {
+    this.updatePosition();
+    const { error, show } = this.checkError();
+    if (!show) return;
+    game.context.globalAlpha = 0.6;
+    this.obj.set(this.x, this.y);
+    this.obj.render();
+    if (error) this.renderError();
+    game.context.globalAlpha = 1;
+  }
+
+  getArea() {
+    return this.obj.getArea();
+  }
+
+  spawn() {
+    if (this.checkError().error || this.isPaused) return;
+
+    game.objs.push(new Switch(this.x, this.y));
     this.pause();
   }
 }
@@ -384,6 +420,7 @@ export const createControlPanel = () => {
   createElement(mappingTiles[0], cpObjects, tileSpawner);
   createElement(flagTextures[0][0], cpObjects, new FlagSpawner());
   createElement(wallTexture, cpObjects, new WallSpawner(), () => {}, "6px");
+  createElement(switchTexture, cpObjects, new SwitchSpawner());
   const cpTrees = document.getElementById("cp-trees");
   createElement(treeTextures[0].treeCactus, cpTrees, new TreeSpawner("treeCactus"));
   createElement(treeTextures[0].treeCactusSmall, cpTrees, new TreeSpawner("treeCactusSmall"));
@@ -422,6 +459,6 @@ export const createControlPanel = () => {
 
   const btnReset = document.getElementById("btn-reset");
   btnReset.addEventListener("click", () => {
-    game.players.forEach((player) => player.reset());
+    game.objs.forEach((obj) => obj.reset?.());
   });
 };

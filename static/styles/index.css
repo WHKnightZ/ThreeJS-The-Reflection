@@ -37,6 +37,10 @@ button i {
   margin-left: 8px;
   font-size: 17px;
 }
+button:disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
 
 .card {
   background-color: white;
@@ -103,4 +107,8 @@ button i {
   flex-direction: column;
   row-gap: 12px;
   margin-top: 16px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }

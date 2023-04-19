@@ -1,15 +1,20 @@
 import { wallTexture } from "../common/textures";
-import { CELL_SIZE, game } from "../configs/constants";
+import { CELL_SIZE, game, OBJ_LAYERS } from "../configs/constants";
 import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
 
 export class Wall extends Obj {
   isReflected: boolean;
+  isExploding: boolean;
+  isDestroyed: boolean;
 
   constructor(x: number, y: number) {
     super();
     this.set(x, y);
     this.isReflected = !!checkIsReflected(y);
+    this.isExploding = false;
+    this.linkedObjs = [];
+    this.isDestroyed = false;
   }
 
   setIsReflected(_isReflected: boolean) {
@@ -24,9 +29,15 @@ export class Wall extends Obj {
     this.y = y * CELL_SIZE - this.texture.height;
   }
 
+  reset() {
+    this.isDestroyed = false;
+  }
+
   update() {}
 
   render() {
+    if (this.isDestroyed) return;
+
     game.context.drawImage(this.texture, this.x, this.y + (this.isReflected ? this.texture.height + CELL_SIZE : 0));
     // drawCellWire(this.x_, this.y_);
     // const { x, y, w, h } = this.getArea();
@@ -41,5 +52,19 @@ export class Wall extends Obj {
       w: this.texture.width,
       h: areaHeight,
     };
+  }
+
+  onSelectLinkedObj(obj: Obj) {
+    if (obj.layer !== OBJ_LAYERS.SWITCH) return;
+    if (this.linkedObjs.includes(obj)) return;
+
+    obj.linkedObjs.push(this);
+    this.linkedObjs.push(obj);
+    game.useSelectLinkedObject = false;
+    game.updateObjectDetailMore();
+  }
+
+  destroy() {
+    this.isDestroyed = true;
   }
 }

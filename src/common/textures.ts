@@ -192,9 +192,7 @@ const loadPlayerTextures = async () => {
 
   await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
   const keys = Object.keys(rightImages);
-  await Promise.all(
-    keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img)))
-  );
+  await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img))));
 
   const mainTextures = [
     [
@@ -209,9 +207,7 @@ const loadPlayerTextures = async () => {
     ],
   ];
   const reflectedTextures = await Promise.all(
-    mainTextures.map(
-      async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c)))))
-    )
+    mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c))))))
   );
 
   playerTextures = [mainTextures, reflectedTextures];
@@ -239,9 +235,7 @@ const loadTreeTextures = async () => {
   };
 
   await Promise.all(Object.keys(imageSrcs).map((key) => loadImage(key, imageSrcs[key])));
-  await Promise.all(
-    Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img)))
-  );
+  await Promise.all(Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
 };
 
 // Flag
@@ -284,6 +278,7 @@ export type SwitchTextures = HTMLImageElement[][];
 
 const switchKeys = Array.from({ length: SWITCH_MAX_ANIM }).map((_, i) => i);
 
+export let switchTexture: HTMLImageElement;
 export const switchTextures: SwitchTextures = [0, 1].map(() => [...switchKeys]) as any;
 
 const loadSwitchTextures = async () => {
@@ -294,6 +289,12 @@ const loadSwitchTextures = async () => {
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
+  await new Promise((resolve) => {
+    const image = new Image();
+    switchTexture = image;
+    image.src = getImageSrc("switch");
+    image.onload = () => resolve(null);
+  });
   await Promise.all(switchKeys.map((_, i) => loadImage(i)));
   await Promise.all(switchKeys.map((i) => flipVertical(switchTextures[0][i], (img) => (switchTextures[1][i] = img))));
 };

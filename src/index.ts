@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { DRTS, game, OBJ_LAYERS, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
 import { Background } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { checkIntersect, getClickedObject, initMap } from "./utils/common";
+import type { Obj } from "./objects/object";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -93,25 +94,14 @@ const render = (now: number = 0) => {
 
   selectedControl.spawner?.render();
 
-  waterContext.drawImage(
-    game.canvas,
-    0,
-    SCREEN_HEIGHT / 2,
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT / 2,
-    0,
-    0,
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT / 2
-  );
+  waterContext.drawImage(game.canvas, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
   stats.update();
 
   texture.needsUpdate = true;
   waterTexture.needsUpdate = true;
 
-  if (game.mouse.xOffset + game.mouse.xOffsetTemp)
-    game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 100);
+  if (game.mouse.xOffset + game.mouse.xOffsetTemp) game.scene.position.setX((game.mouse.xOffset + game.mouse.xOffsetTemp) / 100);
 
   game.renderer.render(game.scene, game.camera);
 };
@@ -122,6 +112,46 @@ const registerMouseEvents = () => {
   const objectDetailName = document.getElementById("object-detail-name") as HTMLDivElement;
   const objectDetailMore = document.getElementById("object-detail-more") as HTMLDivElement;
 
+  (window as any).game = game;
+
+  let savedObj: Obj | null = null;
+
+  const updateObjectDetailMore = (obj?: Obj | null) => {
+    savedObj = obj || savedObj;
+    const linkedObjs = obj === null ? null : savedObj.linkedObjs;
+
+    const handleClickAddLink = () => {
+      game.useSelectLinkedObject = true;
+      updateObjectDetailMore();
+    };
+
+    (window as any).handleClickAddLink = handleClickAddLink;
+
+    if (linkedObjs) {
+      objectDetailMore.innerHTML = `
+      <div style="padding-top: 24px; display: flex; flex-direction: column; align-items: center">
+        <span style="font-weight: 500">Linked Objects</span>
+        ${linkedObjs
+          .map(
+            (obj) =>
+              `<div style="display: flex; align-items: center; margin-top: 12px; margin-bottom: 4px">
+                <img alt="" src="${obj.texture.src}" style="width: 28px; height: 28px; object-fit: scale-down; margin-right: 8px" />
+                <span style="width: 70px; font-size: 14px">${obj.name}</span>
+                <i class="icon-close cursor-pointer"></i>
+              </div>`
+          )
+          .join("")}
+        <button style="margin-top: 12px; width: auto; padding: 8px 12px" onclick="handleClickAddLink()" ${
+          game.useSelectLinkedObject ? "disabled" : ""
+        }>Add Link</button>
+        ${game.useSelectLinkedObject ? `<span style="font-size: 14px; margin-top: 8px">Select an object</span>` : ""}
+      </div>
+    `;
+    } else objectDetailMore.innerHTML = "";
+  };
+
+  game.updateObjectDetailMore = updateObjectDetailMore;
+
   window.addEventListener("mousedown", (e) => {
     if (!rendererCanvas.contains(e.target as any)) return;
     game.mouse.oldPos = e.x;
@@ -130,7 +160,9 @@ const registerMouseEvents = () => {
 
     selectedControl.spawner?.spawn();
 
-    if (game.useSelectTool) {
+    if (game.useSelectLinkedObject) {
+      game.selected.onSelectLinkedObj(getClickedObject(e.offsetX, e.offsetY));
+    } else if (game.useSelectTool) {
       game.selected = getClickedObject(e.offsetX, e.offsetY);
 
       objectDetail.style.opacity = game.selected ? "1" : "0";
@@ -139,6 +171,8 @@ const registerMouseEvents = () => {
 
       objectDetailImg.src = game.selected.texture.src;
       objectDetailName.innerHTML = game.selected.name;
+
+      updateObjectDetailMore(game.selected);
     }
   });
 
@@ -193,6 +227,13 @@ const registerKeyboardEvents = () => {
 
         case "ArrowUp":
           game.players.forEach((player) => player.upHold());
+          break;
+
+        case "Escape":
+          if (game.useSelectLinkedObject) {
+            game.useSelectLinkedObject = false;
+            game.updateObjectDetailMore();
+          }
           break;
 
         default:
@@ -267,12 +308,7 @@ const init = async () => {
 
   createControlPanel();
 
-  game.renderer.setViewport(
-    -SCREEN_WIDTH / 2,
-    -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4,
-    SCREEN_WIDTH * 2,
-    SCREEN_HEIGHT * 2
-  );
+  game.renderer.setViewport(-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 4, SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2);
 
   background = new Background();
 

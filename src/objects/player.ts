@@ -1,10 +1,12 @@
 import { playerTextures } from "../common/textures";
 import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "../configs/constants";
-import { checkIsReflected, drawWire } from "../utils/common";
+import { checkIsReflected } from "../utils/common";
 import { Explosion } from "./explosion";
-import { Flag } from "./flag";
 import { Obj } from "./object";
 import { Particle } from "./particle";
+import type { Flag } from "./flag";
+import type { Switch } from "./switch";
+import type { Wall } from "./wall";
 
 export class Player extends Obj {
   v: number;
@@ -202,14 +204,29 @@ export class Player extends Obj {
   }
 
   onEnterObject(obj: Obj): void {
-    if (obj.layer === OBJ_LAYERS.FLAG) {
-      (obj as Flag).raise();
+    switch (obj.layer) {
+      case OBJ_LAYERS.FLAG:
+        (obj as Flag).raise();
+        break;
+
+      case OBJ_LAYERS.SWITCH:
+        const theSwitch = obj as Switch;
+        theSwitch.switch();
+        theSwitch.linkedObjs.forEach((linkedObj: Wall) => {
+          if (!linkedObj.linkedObjs.every((o: Switch) => o.isSwitching)) return;
+
+          linkedObj.destroy();
+        });
+
+        break;
     }
   }
 
   onLeaveObject(obj: Obj): void {
-    if (obj.layer === OBJ_LAYERS.FLAG) {
-      (obj as Flag).lower();
+    switch (obj.layer) {
+      case OBJ_LAYERS.FLAG:
+        (obj as Flag).lower();
+        break;
     }
   }
 }
