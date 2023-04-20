@@ -1,7 +1,7 @@
 import { game } from "../configs/constants";
-import { Obj } from "./object";
+import { Base } from "./base";
 
-export class Particle extends Obj {
+export class Particle extends Base {
   size: number;
   color: string;
 

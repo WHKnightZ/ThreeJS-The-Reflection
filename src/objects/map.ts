@@ -1,6 +1,6 @@
 import { mappingTiles } from "../common/textures";
 import { CELL_SIZE, game } from "../configs/constants";
-import { Obj } from "./object";
+import { Base } from "./base";
 
 const points = [
   { direction: [0, -1], point: 1 },
@@ -13,7 +13,7 @@ const points = [
   { direction: [-1, -1], point: 128 },
 ];
 
-export class Map extends Obj {
+export class Map extends Base {
   map: number[][];
 
   constructor(map: number[][]) {
@@ -29,7 +29,8 @@ export class Map extends Obj {
         if (m2) {
           let p = 0;
           points.forEach(({ point, direction }) => {
-            if (direction[0] === 0 || direction[1] === 0 || (map[i][j + direction[0]] && map[i + direction[1]]?.[j])) p += (map[i + direction[1]]?.[j + direction[0]] || 0) * point;
+            if (direction[0] === 0 || direction[1] === 0 || (map[i][j + direction[0]] && map[i + direction[1]]?.[j]))
+              p += (map[i + direction[1]]?.[j + direction[0]] || 0) * point;
           });
           newMap[i][j] = p;
         } else newMap[i][j] = -1;

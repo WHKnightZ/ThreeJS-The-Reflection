@@ -1,25 +1,20 @@
 import { OBJ_LAYERS, OBJ_PRIORITIES } from "../configs/constants";
 import { Rectangle } from "../types";
+import { Base } from "./base";
 
 let objId = 0;
 
-export class Obj {
-  t: number;
+export class Obj extends Base {
   priority: number; // Order to Render
   layer: number; // Layer Collision
-  texture: HTMLImageElement;
-  x: number;
-  y: number;
-  x_: number;
-  y_: number;
   id: number;
-  isAlive: boolean;
   collidedObjs: { [key: number]: boolean };
   name: string;
   linkedObjs?: Obj[] | undefined;
   clickedExtraArea: { w: number; h: number };
 
   constructor() {
+    super();
     this.id = objId;
     this.collidedObjs = {};
     objId += 1;
@@ -32,13 +27,9 @@ export class Obj {
     this.name = this.constructor.name + this.id;
     this.layer = OBJ_LAYERS[layer];
     this.priority = OBJ_PRIORITIES[layer];
-
-    console.log(this.id, this.layer);
   }
 
   set?(...params: any): void;
-  render?(): void;
-  update?(): void;
   getArea?(): Rectangle;
   reset?(): void;
 

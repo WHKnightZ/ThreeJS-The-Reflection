@@ -1,11 +1,11 @@
 import { game } from "../configs/constants";
-import { Obj } from "./object";
+import { Base } from "./base";
 
 const DOTS_LENGTH = 24;
 
 const dots = Array.from({ length: DOTS_LENGTH }).map((_, i) => i);
 
-export class Explosion extends Obj {
+export class Explosion extends Base {
   dots: { x: number; y: number; offsetX: number; offsetY: number; size: number }[];
   size: number;
   color: string;

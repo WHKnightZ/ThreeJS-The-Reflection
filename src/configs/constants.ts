@@ -1,3 +1,4 @@
+import type { Base } from "../objects/base";
 import type { Obj } from "../objects/object";
 import type { Player } from "../objects/player";
 
@@ -47,9 +48,10 @@ export const game: {
     xOffsetTemp: number;
     xWithOffset: number;
   };
-  players: Player[];
+  bases: Base[];
   objs: Obj[];
-  particles: Obj[];
+  players: Player[];
+  particles: Base[];
   useSelectTool: boolean;
   useHandTool: boolean;
   selected: Obj | null;

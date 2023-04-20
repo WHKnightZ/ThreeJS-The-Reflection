@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module";
-import { DRTS, game, OBJ_LAYERS, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
+import { DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
 import { Background } from "./objects";
@@ -48,6 +48,7 @@ const render = (now: number = 0) => {
 
   material.uniforms.uTime.value = total;
 
+  game.bases.forEach((obj) => obj.update?.());
   game.objs.forEach((obj) => obj.update?.());
 
   // Explosion
@@ -59,10 +60,11 @@ const render = (now: number = 0) => {
   if (needUpdateExplosions) game.particles = game.particles.filter((obj) => obj.isAlive);
 
   // Collision
-  for (let i = 0; i < game.objs.length - 1; i += 1) {
-    for (let j = i + 1; j < game.objs.length; j += 1) {
-      const obj1 = game.objs[i];
-      const obj2 = game.objs[j];
+  const objs = game.objs;
+  for (let i = 0; i < objs.length - 1; i += 1) {
+    for (let j = i + 1; j < objs.length; j += 1) {
+      const obj1 = objs[i];
+      const obj2 = objs[j];
       const obj1Id = obj1.id;
       const obj2Id = obj2.id;
 
