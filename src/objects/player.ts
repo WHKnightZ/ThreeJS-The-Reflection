@@ -140,6 +140,8 @@ export class Player extends Obj {
         if (this.anim === 4) this.anim = 0;
       }
     }
+
+    this.texture = this.textures[this.drt][this.stt][this.anim];
   }
 
   render() {
@@ -147,7 +149,7 @@ export class Player extends Obj {
 
     const { x, y, w, h } = this.getArea();
     // drawWire(x, y, w, h);
-    game.context.drawImage(this.textures[this.drt][this.stt][this.anim], x, y, w, h);
+    game.context.drawImage(this.texture, x, y, w, h);
   }
 
   lrHold(drt: number) {

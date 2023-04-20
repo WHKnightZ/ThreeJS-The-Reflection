@@ -7,7 +7,6 @@ import { Background } from "./objects";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { checkIntersect, getClickedObject, initMap } from "./utils/common";
-import type { Obj } from "./objects/object";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -114,18 +113,27 @@ const registerMouseEvents = () => {
 
   (window as any).game = game;
 
-  let savedObj: Obj | null = null;
+  const updateObjectDetailMore = () => {
+    const selectedObj = game.selected;
+    const linkedObjs = selectedObj === null ? null : selectedObj.linkedObjs;
 
-  const updateObjectDetailMore = (obj?: Obj | null) => {
-    savedObj = obj || savedObj;
-    const linkedObjs = obj === null ? null : savedObj.linkedObjs;
-
-    const handleClickAddLink = () => {
+    const handleAddLink = () => {
       game.useSelectLinkedObject = true;
       updateObjectDetailMore();
     };
 
-    (window as any).handleClickAddLink = handleClickAddLink;
+    const handleRemoveLink = (id: number) => {
+      const obj = linkedObjs.find((o) => o.id === id);
+      if (!obj) return;
+
+      obj.linkedObjs = obj.linkedObjs.filter((o) => o.id !== selectedObj.id);
+      selectedObj.linkedObjs = selectedObj.linkedObjs.filter((o) => o.id !== obj.id);
+
+      updateObjectDetailMore();
+    };
+
+    (window as any).handleAddLink = handleAddLink;
+    (window as any).handleRemoveLink = handleRemoveLink;
 
     if (linkedObjs) {
       objectDetailMore.innerHTML = `
@@ -137,11 +145,11 @@ const registerMouseEvents = () => {
               `<div style="display: flex; align-items: center; margin-top: 12px; margin-bottom: 4px">
                 <img alt="" src="${obj.texture.src}" style="width: 28px; height: 28px; object-fit: scale-down; margin-right: 8px" />
                 <span style="width: 70px; font-size: 14px">${obj.name}</span>
-                <i class="icon-close cursor-pointer"></i>
+                <i class="icon-close cursor-pointer" onclick="handleRemoveLink(${obj.id})"></i>
               </div>`
           )
           .join("")}
-        <button style="margin-top: 12px; width: auto; padding: 8px 12px" onclick="handleClickAddLink()" ${
+        <button style="margin-top: 12px; width: auto; padding: 8px 12px" onclick="handleAddLink()" ${
           game.useSelectLinkedObject ? "disabled" : ""
         }>Add Link</button>
         ${game.useSelectLinkedObject ? `<span style="font-size: 14px; margin-top: 8px">Select an object</span>` : ""}
@@ -172,7 +180,7 @@ const registerMouseEvents = () => {
       objectDetailImg.src = game.selected.texture.src;
       objectDetailName.innerHTML = game.selected.name;
 
-      updateObjectDetailMore(game.selected);
+      updateObjectDetailMore();
     }
   });
 
@@ -345,6 +353,8 @@ const init = async () => {
   registerKeyboardEvents();
 
   requestAnimationFrame(render);
+
+  console.log(game.objs);
 };
 
 // Main

@@ -53,9 +53,9 @@ export class Switch extends Obj {
   getArea() {
     const areaHeight = this.texture.height / 1.5;
     return {
-      x: this.x - this.texture.width / 4,
+      x: this.x - this.texture.width / 3,
       y: this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -areaHeight),
-      w: this.texture.width / 2,
+      w: this.texture.width / 1.5,
       h: areaHeight,
     };
   }

@@ -17,11 +17,13 @@ export class Obj {
   collidedObjs: { [key: number]: boolean };
   name: string;
   linkedObjs?: Obj[] | undefined;
+  clickedExtraArea: { w: number; h: number };
 
   constructor() {
     this.id = objId;
     this.collidedObjs = {};
     objId += 1;
+    this.clickedExtraArea = { w: 0, h: 0 };
     this.setLayer();
   }
 
@@ -30,6 +32,8 @@ export class Obj {
     this.name = this.constructor.name + this.id;
     this.layer = OBJ_LAYERS[layer];
     this.priority = OBJ_PRIORITIES[layer];
+
+    console.log(this.id, this.layer);
   }
 
   set?(...params: any): void;

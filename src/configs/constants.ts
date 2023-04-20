@@ -54,7 +54,7 @@ export const game: {
   useHandTool: boolean;
   selected: Obj | null;
   useSelectLinkedObject: boolean;
-  updateObjectDetailMore: (obj?: Obj | null) => void;
+  updateObjectDetailMore: () => void;
 } = {} as any;
 
 export const OBJ_LAYERS = {

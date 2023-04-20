@@ -24,12 +24,17 @@ export class Tree extends Obj {
     this.x = x * CELL_SIZE + CELL_SIZE / 2;
     this.y = y * CELL_SIZE;
     this.texture = treeTextures[checkIsReflected(y)][this.type];
+    this.clickedExtraArea = { w: this.texture.width * 0.3, h: this.texture.height * 0.3 };
   }
 
   update() {}
 
   render() {
-    game.context.drawImage(this.texture, this.x - this.texture.width / 2 + this.offset, this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height));
+    game.context.drawImage(
+      this.texture,
+      this.x - this.texture.width / 2 + this.offset,
+      this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -this.texture.height)
+    );
     // drawCellWire(this.x_, this.y_);
     // const { x, y, w, h } = this.getArea();
     // drawWire(x, y, w, h);
@@ -37,6 +42,11 @@ export class Tree extends Obj {
 
   getArea() {
     const areaHeight = this.texture.height / 1.5;
-    return { x: this.x - this.texture.width / 4 + this.offset / 2, y: this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -areaHeight), w: this.texture.width / 2, h: areaHeight };
+    return {
+      x: this.x - this.texture.width / 4 + this.offset / 2,
+      y: this.y + (checkIsReflected(this.y_) ? CELL_SIZE : -areaHeight),
+      w: this.texture.width / 2,
+      h: areaHeight,
+    };
   }
 }

@@ -166,15 +166,17 @@ export const exportMap = () => {
 export const getClickedObject = (_x: number, _y: number) => {
   let ret: Obj | null = null;
 
-  game.objs.forEach((obj) => {
+  game.objs.reduceRight((_: any, obj) => {
     if (ret) return;
 
     if (obj.getArea) {
       const { x, y, w, h } = obj.getArea();
 
-      if (_x >= x - 15 && _x <= x + w + 15 && _y >= y - 15 && _y <= y + h + 15) ret = obj;
+      const { w: extraWidth, h: extraHeight } = obj.clickedExtraArea;
+
+      if (_x >= x - extraWidth && _x <= x + w + extraWidth && _y >= y - extraHeight && _y <= y + h + extraHeight) ret = obj;
     }
-  });
+  }, null);
 
   return ret;
 };
