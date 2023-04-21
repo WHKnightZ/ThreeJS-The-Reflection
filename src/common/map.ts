@@ -1,3 +1,3 @@
-import { Map } from "../objects";
+import type { Map } from "../objects/map";
 
 export const map: { current: Map } = { current: null };

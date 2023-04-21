@@ -4,50 +4,13 @@ import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Explosion } from "./explosion";
 import { Obj } from "./object";
 
-// class Explosion extends Obj {
-//   static SIZE = 40;
-//   static MAX_TIME = 24;
-
-//   w: number;
-//   h: number;
-//   opacity: number;
-//   color: string;
-
-//   constructor(x: number, y: number) {
-//     super();
-//     this.x = x;
-//     this.y = y;
-//     this.isAlive = true;
-//     this.color = "#ffffff";
-//     this.opacity = 1;
-//     this.t = 0;
-//     this.w = Explosion.SIZE;
-//     this.h = Explosion.SIZE;
-//   }
-
-//   update() {
-//     this.t += 1;
-//     this.isAlive = this.t <= Explosion.MAX_TIME;
-//     this.opacity = 1 - this.t / Explosion.MAX_TIME;
-//     this.w = Explosion.SIZE * (1 - this.t / Explosion.MAX_TIME);
-//     this.h = Explosion.SIZE * 1.5 * (1 + this.t / Explosion.MAX_TIME);
-//   }
-
-//   render() {
-//     game.context.globalAlpha = this.opacity;
-//     game.context.fillStyle = this.color;
-//     game.context.fillRect(this.x - this.w / 2, this.y - this.h / 2, this.w, this.h);
-//     game.context.globalAlpha = 1;
-//   }
-// }
-
 export class Wall extends Obj {
   isReflected: boolean;
   isExploding: boolean;
   isDestroyed: boolean;
 
-  constructor(x: number, y: number) {
-    super();
+  constructor(x: number, y: number, createId = true) {
+    super(createId);
     this.set(x, y);
     this.isReflected = !!checkIsReflected(y);
     this.isExploding = false;
@@ -104,7 +67,6 @@ export class Wall extends Obj {
 
   destroy() {
     this.isDestroyed = true;
-    // game.particles.push(new Explosion(this.x + 16, this.y + 16));
-    game.particles.push(new Explosion(this.x + 16, this.y + 16));
+    game.particles.push(new Explosion(this.x + 16, this.y + 16, 4, "#e63b7a", "few", 0.92));
   }
 }

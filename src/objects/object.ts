@@ -2,31 +2,31 @@ import { OBJ_LAYERS, OBJ_PRIORITIES } from "../configs/constants";
 import { Rectangle } from "../types";
 import { Base } from "./base";
 
-let objId = 0;
+const ids = {};
 
 export class Obj extends Base {
   priority: number; // Order to Render
   layer: number; // Layer Collision
-  id: number;
+  id: string;
   collidedObjs: { [key: number]: boolean };
-  name: string;
-  linkedObjs?: Obj[] | undefined;
+  linkedObjs?: Obj[];
   clickedExtraArea: { w: number; h: number };
 
-  constructor() {
+  constructor(createId = true) {
     super();
-    this.id = objId;
-    this.collidedObjs = {};
-    objId += 1;
-    this.clickedExtraArea = { w: 0, h: 0 };
-    this.setLayer();
-  }
 
-  setLayer() {
+    this.collidedObjs = {};
     const layer = this.constructor.name.toUpperCase();
-    this.name = this.constructor.name + this.id;
     this.layer = OBJ_LAYERS[layer];
     this.priority = OBJ_PRIORITIES[layer];
+    this.clickedExtraArea = { w: 0, h: 0 };
+    this.id = "#";
+
+    if (createId) {
+      const numId = (ids[layer] = ids[layer] || 0);
+      ids[layer] += 1;
+      this.id = this.constructor.name + numId;
+    }
   }
 
   set?(...params: any): void;

@@ -7,8 +7,8 @@ export class Flag extends Obj {
   anim: number;
   isRaiseUp: boolean;
 
-  constructor(x: number, y: number) {
-    super();
+  constructor(x: number, y: number, createId = true) {
+    super(createId);
     this.isRaiseUp = false;
     this.anim = 0;
     this.set(x, y);

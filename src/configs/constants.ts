@@ -48,7 +48,6 @@ export const game: {
     xOffsetTemp: number;
     xWithOffset: number;
   };
-  bases: Base[];
   objs: Obj[];
   players: Player[];
   particles: Base[];
@@ -63,8 +62,8 @@ export const OBJ_LAYERS = {
   PLAYER: 0,
   TREE: 1, // Cây, chỉ để trang trí
   FLAG: 2, // Cờ, khi cả 2 player đâm vào thì qua màn
-  SWITCH: 3, // Công tắc làm tường biến mất
-  WALL: 4, // Tường chắn, sẽ biến mất khi đâm vào Switch
+  WALL: 3, // Tường chắn, sẽ biến mất khi đâm vào Switch
+  SWITCH: 4, // Công tắc làm tường biến mất
   SPIKE: 5, // Gai xương rồng, đâm vào sẽ chết
   BOX: 6, // Hộp để đẩy xuống nước, có khả năng nổi trên mặt nước
 };
@@ -72,8 +71,11 @@ export const OBJ_LAYERS = {
 export const OBJ_PRIORITIES = {
   PLAYER: 3,
   TREE: 0,
-  FLAG: 2,
-  MAP: 1,
+  FLAG: 1,
+  WALL: 4,
+  SWITCH: 2,
+  SPIKE: 0,
+  BOX: 0,
 };
 
 export const COLLISION_MATRIX = [

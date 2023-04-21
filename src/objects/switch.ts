@@ -2,13 +2,14 @@ import { switchTextures } from "../common/textures";
 import { CELL_SIZE, game, OBJ_LAYERS, SWITCH_MAX_ANIM } from "../configs/constants";
 import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
 import { Obj } from "./object";
+import type { Wall } from "./wall";
 
 export class Switch extends Obj {
   anim: number;
   isSwitching: boolean;
 
-  constructor(x: number, y: number) {
-    super();
+  constructor(x: number, y: number, createId = true) {
+    super(createId);
     this.isSwitching = false;
     this.anim = 0;
     this.set(x, y);
@@ -40,7 +41,15 @@ export class Switch extends Obj {
   }
 
   switch() {
+    if (this.isSwitching) return;
+
     this.isSwitching = true;
+
+    this.linkedObjs.forEach((linkedObj: Wall) => {
+      if (!linkedObj.linkedObjs.every((o: Switch) => o.isSwitching)) return;
+
+      linkedObj.destroy();
+    });
   }
 
   render() {

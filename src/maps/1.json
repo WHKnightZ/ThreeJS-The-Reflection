@@ -39,13 +39,23 @@
     { "type": "treePalmSmall", "x": 12, "y": 11 },
     { "type": "treePalm", "x": 18, "y": 13 },
     { "type": "treeCactus", "x": 25, "y": 13 },
-    { "type": "treeCactusSmall", "x": 36, "y": 13 },
+    { "type": "treeCactusSmall", "x": 32, "y": 13 },
     { "type": "treePalmSmall", "x": 12, "y": 17 }
   ],
   "flags": [
     { "x": 22, "y": 13 },
     { "x": 24, "y": 16 }
   ],
-  "walls": [{ "x": 33, "y": 13 }],
-  "switches": [{ "x": 16, "y": 13 }]
+  "walls": [
+    { "x": 35, "y": 13 },
+    { "x": 35, "y": 11 },
+    { "x": 35, "y": 9 }
+  ],
+  "switches": [{ "x": 16, "y": 13 }],
+  "links": {
+    "Wall0": ["Switch0"],
+    "Wall1": ["Switch0"],
+    "Wall2": ["Switch0"],
+    "Switch0": ["Wall0", "Wall1", "Wall2"]
+  }
 }

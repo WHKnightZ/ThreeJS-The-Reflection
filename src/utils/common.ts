@@ -1,7 +1,7 @@
 import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
 import type { Obj } from "../objects/object";
 import { Flag, Player, Tree, Wall, Switch } from "../objects";
-import { Map } from "../objects";
+import { Map } from "../objects/map";
 import { Rectangle } from "../types";
 import { map } from "../common/map";
 
@@ -106,14 +106,17 @@ export const initMap = () => {
 
   map.current = new Map(mapInfo.baseMap);
   const players = mapInfo.players.map((player) => new Player(player.x, player.y, player.drt));
-
-  game.objs.push(map.current);
+  game.players = players;
+  players.forEach((player) => game.objs.push(player));
   mapInfo.trees.forEach(({ type, x, y }) => game.objs.push(new Tree(type as any, x, y)));
   mapInfo.flags.forEach(({ x, y }) => game.objs.push(new Flag(x, y)));
   mapInfo.walls.forEach(({ x, y }) => game.objs.push(new Wall(x, y)));
   mapInfo.switches.forEach(({ x, y }) => game.objs.push(new Switch(x, y)));
-  game.players = players;
-  players.forEach((player) => game.objs.push(player));
+  for (const key in mapInfo.links) {
+    mapInfo.links[key].forEach((key2: string) => {
+      game.objs.find((o) => o.id === key).linkedObjs.push(game.objs.find((o) => o.id === key2));
+    });
+  }
 };
 
 export const importMap = () => {

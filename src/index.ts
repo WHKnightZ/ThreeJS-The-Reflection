@@ -3,10 +3,11 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { DRTS, game, SCREEN_HEIGHT, SCREEN_WIDTH } from "./configs/constants";
 import { Loading } from "./common/loading";
 import { loadTextures } from "./common/textures";
-import { Background } from "./objects";
+import { Background } from "./objects/background";
 import { createControlPanel, selectedControl } from "./common/controlPanel";
 // import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { checkIntersect, getClickedObject, initMap } from "./utils/common";
+import { map } from "./common/map";
 
 const stats: Stats = new (Stats as any)();
 document.body.appendChild(stats.dom);
@@ -48,7 +49,6 @@ const render = (now: number = 0) => {
 
   material.uniforms.uTime.value = total;
 
-  game.bases.forEach((obj) => obj.update?.());
   game.objs.forEach((obj) => obj.update?.());
 
   // Explosion
@@ -89,6 +89,7 @@ const render = (now: number = 0) => {
   }
 
   background.render();
+  map.current.render();
   game.objs.sort((a, b) => (a.priority < b.priority ? -1 : 1)).forEach((obj) => obj.render?.());
 
   game.particles.forEach((obj) => obj.render());
@@ -124,7 +125,7 @@ const registerMouseEvents = () => {
       updateObjectDetailMore();
     };
 
-    const handleRemoveLink = (id: number) => {
+    const handleRemoveLink = (id: string) => {
       const obj = linkedObjs.find((o) => o.id === id);
       if (!obj) return;
 
@@ -146,8 +147,8 @@ const registerMouseEvents = () => {
             (obj) =>
               `<div style="display: flex; align-items: center; margin-top: 12px; margin-bottom: 4px">
                 <img alt="" src="${obj.texture.src}" style="width: 28px; height: 28px; object-fit: scale-down; margin-right: 8px" />
-                <span style="width: 70px; font-size: 14px">${obj.name}</span>
-                <i class="icon-close cursor-pointer" onclick="handleRemoveLink(${obj.id})"></i>
+                <span style="width: 70px; font-size: 14px">${obj.id}</span>
+                <div class="btn-remove cursor-pointer" onclick="handleRemoveLink('${obj.id}')"><i class="icon-close"></i></div>
               </div>`
           )
           .join("")}
@@ -180,7 +181,7 @@ const registerMouseEvents = () => {
       if (!game.selected) return;
 
       objectDetailImg.src = game.selected.texture.src;
-      objectDetailName.innerHTML = game.selected.name;
+      objectDetailName.innerHTML = game.selected.id;
 
       updateObjectDetailMore();
     }
@@ -355,8 +356,6 @@ const init = async () => {
   registerKeyboardEvents();
 
   requestAnimationFrame(render);
-
-  console.log(game.objs);
 };
 
 // Main

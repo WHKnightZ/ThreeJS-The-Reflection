@@ -63,6 +63,30 @@ button:disabled {
   left: -16px;
   transform: translateX(-100%);
   width: 200px;
+  box-sizing: border-box;
+  max-height: calc(100% - 4px);
+  scrollbar-width: thin;
+  overflow-y: auto;
+}
+.canvas-container #object-detail::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.canvas-container #object-detail::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: rgba(181, 182, 183, 0.2705882353);
+}
+.canvas-container #object-detail:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(194, 195, 196, 0.4980392157);
+}
+.canvas-container #object-detail #object-detail-more .btn-remove {
+  transition: opacity 0.3s ease;
+  color: #757575;
+  padding: 4px;
+  display: flex;
+}
+.canvas-container #object-detail #object-detail-more .btn-remove:hover {
+  opacity: 0.7;
 }
 
 #canvas {

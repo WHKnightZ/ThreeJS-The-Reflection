@@ -6,7 +6,6 @@ import { Obj } from "./object";
 import { Particle } from "./particle";
 import type { Flag } from "./flag";
 import type { Switch } from "./switch";
-import type { Wall } from "./wall";
 
 export class Player extends Obj {
   v: number;
@@ -29,8 +28,8 @@ export class Player extends Obj {
     drt: number;
   };
 
-  constructor(x: number, y: number, drt: number = DRTS.RIGHT) {
-    super();
+  constructor(x: number, y: number, drt: number = DRTS.RIGHT, createId = true) {
+    super(createId);
 
     this.set(x, y, drt);
   }
@@ -214,11 +213,6 @@ export class Player extends Obj {
       case OBJ_LAYERS.SWITCH:
         const theSwitch = obj as Switch;
         theSwitch.switch();
-        theSwitch.linkedObjs.forEach((linkedObj: Wall) => {
-          if (!linkedObj.linkedObjs.every((o: Switch) => o.isSwitching)) return;
-
-          linkedObj.destroy();
-        });
 
         break;
     }

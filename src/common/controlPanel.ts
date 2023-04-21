@@ -84,7 +84,7 @@ class PlayerSpawner extends Spawner {
   constructor(drt: number) {
     super(200);
     this.drt = drt;
-    this.obj = new Player(0, 0);
+    this.obj = new Player(0, 0, drt, false);
   }
 
   render() {
@@ -96,7 +96,7 @@ class PlayerSpawner extends Spawner {
     game.context.globalAlpha = 1;
   }
 
-  getArea(): Rectangle {
+  getArea() {
     return this.obj.getArea();
   }
 
@@ -122,7 +122,7 @@ class TreeSpawner extends Spawner {
   constructor(type: TreeTextureTypes) {
     super();
     this.type = type;
-    this.obj = new Tree(type, 0, 0);
+    this.obj = new Tree(type, 0, 0, false);
   }
 
   checkError() {
@@ -199,7 +199,7 @@ class TileSpawner extends Spawner {
 class FlagSpawner extends Spawner {
   constructor() {
     super();
-    this.obj = new Flag(0, 0);
+    this.obj = new Flag(0, 0, false);
   }
 
   checkError() {
@@ -241,7 +241,7 @@ class WallSpawner extends Spawner {
 
   constructor() {
     super();
-    this.obj = new Wall(0, 0);
+    this.obj = new Wall(0, 0, false);
   }
 
   updatePosition() {
@@ -292,7 +292,7 @@ class WallSpawner extends Spawner {
     game.context.globalAlpha = 1;
   }
 
-  getArea(): Rectangle {
+  getArea() {
     return this.obj.getArea();
   }
 
@@ -307,7 +307,7 @@ class WallSpawner extends Spawner {
 class SwitchSpawner extends Spawner {
   constructor() {
     super();
-    this.obj = new Switch(0, 0);
+    this.obj = new Switch(0, 0, false);
   }
 
   checkError() {
@@ -367,6 +367,7 @@ class RemoveSpawner extends Spawner {
 
       return;
     }
+
     const removedItem = game.objs.splice(removedIndex, 1)[0];
     if (removedItem.layer === OBJ_LAYERS.PLAYER) game.players = game.players.filter((p) => p.id !== removedItem.id);
     this.pause();

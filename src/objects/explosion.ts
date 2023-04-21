@@ -1,24 +1,31 @@
 import { game } from "../configs/constants";
 import { Base } from "./base";
 
-const DOTS_LENGTH = 24;
+const dotsLength = {
+  few: 12,
+  many: 24,
+};
 
-const dots = Array.from({ length: DOTS_LENGTH }).map((_, i) => i);
+const dots = {
+  few: Array.from({ length: dotsLength.few }).map((_, i) => i),
+  many: Array.from({ length: dotsLength.many }).map((_, i) => i),
+};
 
 export class Explosion extends Base {
   dots: { x: number; y: number; offsetX: number; offsetY: number; size: number }[];
   size: number;
   color: string;
+  reduction: number;
 
-  constructor(x: number, y: number, size: number = 8, color: string = "#fd6b00") {
+  constructor(x: number, y: number, size: number = 8, color: string = "#fd6b00", count: "few" | "many" = "many", reduction = 0.95) {
     super();
     this.t = 0;
     this.x = x;
     this.y = y;
     this.isAlive = true;
     const offsetAngle = Math.random();
-    this.dots = dots.map((i) => {
-      const angle = ((2 * Math.PI) / DOTS_LENGTH) * i + offsetAngle;
+    this.dots = dots[count].map((i) => {
+      const angle = ((2 * Math.PI) / dotsLength[count]) * i + offsetAngle;
       const offsetRandom = (Math.random() * 0.5 + 0.5) * 2.6;
       const offsetX = Math.cos(angle) * offsetRandom;
       const offsetY = Math.sin(angle) * offsetRandom;
@@ -28,6 +35,7 @@ export class Explosion extends Base {
     });
     this.size = size;
     this.color = color;
+    this.reduction = reduction;
   }
 
   update() {
@@ -37,7 +45,7 @@ export class Explosion extends Base {
       dot.offsetY *= 1.01;
       dot.x += dot.offsetX;
       dot.y += dot.offsetY;
-      dot.size *= 0.95;
+      dot.size *= this.reduction;
 
       if (dot.size > 0.5) isAlive = true;
     });
