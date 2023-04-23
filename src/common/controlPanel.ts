@@ -369,6 +369,13 @@ class RemoveSpawner extends Spawner {
     }
 
     const removedItem = game.objs.splice(removedIndex, 1)[0];
+    if (removedItem.linkedObjs?.length) {
+      removedItem.linkedObjs.forEach((obj) => {
+        obj.linkedObjs = obj.linkedObjs.filter((o) => o.id !== removedItem.id);
+      });
+      game.updateObjectDetailMore();
+    }
+
     if (removedItem.layer === OBJ_LAYERS.PLAYER) game.players = game.players.filter((p) => p.id !== removedItem.id);
     this.pause();
   }

@@ -1,6 +1,7 @@
 import { OBJ_LAYERS, OBJ_PRIORITIES } from "../configs/constants";
 import { Rectangle } from "../types";
 import { Base } from "./base";
+import type { ObjectPlugin } from "../plugins/plugin";
 
 const ids = {};
 
@@ -11,6 +12,7 @@ export class Obj extends Base {
   collidedObjs: { [key: number]: boolean };
   linkedObjs?: Obj[];
   clickedExtraArea: { w: number; h: number };
+  plugins?: ObjectPlugin[];
 
   constructor(createId = true) {
     super();

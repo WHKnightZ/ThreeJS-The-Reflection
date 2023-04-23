@@ -51,7 +51,7 @@
     { "x": 35, "y": 11 },
     { "x": 35, "y": 9 }
   ],
-  "switches": [{ "x": 16, "y": 13 }],
+  "switches": [{ "x": 28, "y": 16 }],
   "links": {
     "Wall0": ["Switch0"],
     "Wall1": ["Switch0"],
