@@ -114,7 +114,7 @@ const registerMouseEvents = () => {
   const objectDetailName = document.getElementById("object-detail-name") as HTMLDivElement;
   const objectDetailMore = document.getElementById("object-detail-more") as HTMLDivElement;
 
-  (window as any).game = game;
+  window.game = game;
 
   const updateObjectDetailMore = () => {
     const selectedObj = game.selected;
@@ -135,8 +135,8 @@ const registerMouseEvents = () => {
       updateObjectDetailMore();
     };
 
-    (window as any).handleAddLink = handleAddLink;
-    (window as any).handleRemoveLink = handleRemoveLink;
+    window.handleAddLink = handleAddLink;
+    window.handleRemoveLink = handleRemoveLink;
 
     if (linkedObjs) {
       objectDetailMore.innerHTML = `
