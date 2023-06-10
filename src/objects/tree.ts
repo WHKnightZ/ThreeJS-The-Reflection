@@ -1,17 +1,17 @@
-import { treeTextures, TreeTextureTypes } from "../common/textures";
-import { CELL_SIZE, game } from "../configs/constants";
-import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
+import { treeTextures, TreeTextureType } from "@/common/textures";
+import { CELL_SIZE, game } from "@/configs/constants";
+import { checkIsReflected, drawCellWire, drawWire } from "@/utils/common";
 import { Obj } from "./object";
 
 const treeOffsets: {
-  [key in TreeTextureTypes]: number;
+  [key in TreeTextureType]: number;
 } = { treeCactus: 0, treeCactusSmall: 0, treePalm: -14, treePalmSmall: 12 };
 
 export class Tree extends Obj {
-  type: TreeTextureTypes;
+  type: TreeTextureType;
   offset: number;
 
-  constructor(type: TreeTextureTypes, x: number, y: number, createId = true) {
+  constructor(type: TreeTextureType, x: number, y: number, createId = true) {
     super(createId);
     this.type = type;
     this.set(x, y);

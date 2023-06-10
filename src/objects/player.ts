@@ -1,6 +1,6 @@
-import { playerTextures } from "../common/textures";
-import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "../configs/constants";
-import { checkIsReflected } from "../utils/common";
+import { playerTextures } from "@/common/textures";
+import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "@/configs/constants";
+import { checkIsReflected } from "@/utils/common";
 import { Explosion } from "./explosion";
 import { Obj } from "./object";
 import { Particle } from "./particle";

@@ -1,11 +1,11 @@
-import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, SCREEN_HEIGHT } from "../configs/constants";
-import { Flag, Player, Switch, Tree, Wall } from "../objects";
-import { Explosion } from "../objects/explosion";
-import { Obj } from "../objects/object";
-import { Rectangle } from "../types";
-import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "../utils/common";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, SCREEN_HEIGHT } from "@/configs/constants";
+import { Flag, Player, Switch, Tree, Wall } from "@/objects";
+import { Explosion } from "@/objects/explosion";
+import { Obj } from "@/objects/object";
+import { Rectangle } from "@/types";
+import { checkCanCollide, checkIntersect, checkIsReflected, exportMap, getImageSrc, importMap } from "@/utils/common";
 import { map } from "./map";
-import { commonTextures, flagTextures, mappingTiles, playerTextures, switchTexture, treeTextures, TreeTextureTypes, wallTexture } from "./textures";
+import { commonTextures, flagTextures, mappingTiles, playerTextures, switchTexture, treeTextures, TreeTextureType, wallTexture } from "./textures";
 
 class Spawner {
   x: number;
@@ -117,9 +117,9 @@ class PlayerSpawner extends Spawner {
 }
 
 class TreeSpawner extends Spawner {
-  type: TreeTextureTypes;
+  type: TreeTextureType;
 
-  constructor(type: TreeTextureTypes) {
+  constructor(type: TreeTextureType) {
     super();
     this.type = type;
     this.obj = new Tree(type, 0, 0, false);

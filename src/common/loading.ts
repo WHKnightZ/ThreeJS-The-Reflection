@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { game } from "../configs/constants";
+import { game } from "@/configs/constants";
 
 const offsetX = -0.7;
 const offsetT = 10;

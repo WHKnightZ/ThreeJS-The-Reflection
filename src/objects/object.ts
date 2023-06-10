@@ -1,7 +1,7 @@
-import { OBJ_LAYERS, OBJ_PRIORITIES } from "../configs/constants";
-import { Rectangle } from "../types";
+import { OBJ_LAYERS, OBJ_PRIORITIES } from "@/configs/constants";
+import { Rectangle } from "@/types";
 import { Base } from "./base";
-import type { ObjectPlugin } from "../plugins/plugin";
+import type { ObjectPlugin } from "@/plugins/plugin";
 
 const ids = {};
 

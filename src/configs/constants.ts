@@ -1,8 +1,8 @@
-import type { Base } from "../objects/base";
-import type { Obj } from "../objects/object";
-import type { Player } from "../objects/player";
+import type { Base } from "@/objects/base";
+import type { Obj } from "@/objects/object";
+import type { Player } from "@/objects/player";
 
-export { default as mapInfo } from "../maps/1.json";
+export { default as mapInfo } from "@/maps/1.json";
 
 export const APP_NAME = "The Reflection";
 
@@ -39,7 +39,7 @@ export const game: {
   context: CanvasRenderingContext2D;
   rendererCanvas: HTMLCanvasElement;
   mouse: {
-    x: number; //
+    x: number;
     y: number;
     isDragging: boolean;
     isRightMouse: boolean;

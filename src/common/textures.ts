@@ -1,27 +1,29 @@
-import { CELL_SIZE, FLAG_MAX_ANIM, SWITCH_MAX_ANIM } from "../configs/constants";
-import { flipHorizontal, flipVertical, getImageSrc } from "../utils/common";
-
-export let backgroundTexture: HTMLImageElement;
+import { CELL_SIZE, FLAG_MAX_ANIM, SWITCH_MAX_ANIM } from "@/configs/constants";
+import { flipHorizontal, flipVertical, getImageSrc, getKeys } from "@/utils/common";
 
 // Common
-type CommonTexturesType = "error" | "remove";
+type CommonTextureType = "error" | "remove";
+
+const commonTextureKeys: { [key in CommonTextureType]: string } = { error: "error", remove: "x" };
 
 export const commonTextures: {
-  [key in CommonTexturesType]: HTMLImageElement;
-} = { error: "error", remove: "x" } as any;
+  [key in CommonTextureType]: HTMLImageElement;
+} = {} as any;
 
 const loadCommonTextures = async () => {
-  const loadImage = (key: string, src: string) => {
+  const loadImage = (key: CommonTextureType, src: string) => {
     const image = new Image();
     commonTextures[key] = image;
     image.src = getImageSrc(src);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
-  await Promise.all(Object.keys(commonTextures).map((key) => loadImage(key, commonTextures[key])));
+  await Promise.all(getKeys(commonTextureKeys).map((key) => loadImage(key, commonTextureKeys[key])));
 };
 
 // Background
+export let backgroundTexture: HTMLImageElement;
+
 const loadBackgroundTextures = async () => {
   backgroundTexture = new Image();
   backgroundTexture.src = getImageSrc("background");
@@ -30,20 +32,6 @@ const loadBackgroundTextures = async () => {
       res(null);
     };
   });
-};
-
-const createCanvas = (width = CELL_SIZE, height = CELL_SIZE) => {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  return {
-    context: canvas.getContext("2d") as CanvasRenderingContext2D,
-    createImg: () => {
-      const img = new Image();
-      img.src = canvas.toDataURL("image/png");
-      return img;
-    },
-  };
 };
 
 // Tiles
@@ -67,17 +55,31 @@ export type MapPartType = { [Property in keyof typeof parts]: any };
 
 const mapPart: MapPartType = {} as any;
 
-export const mappingTiles = {};
+export const mappingTiles: { [key: string]: HTMLImageElement } = {};
 
 const loadTileTextures = async () => {
-  const promises = [];
+  const createCanvas = (width = CELL_SIZE, height = CELL_SIZE) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    return {
+      context: canvas.getContext("2d") as CanvasRenderingContext2D,
+      createImg: () => {
+        const img = new Image();
+        img.src = canvas.toDataURL("image/png");
+        return img;
+      },
+    };
+  };
+
+  const promises: Promise<any>[] = [];
 
   const images = new Image();
   images.src = getImageSrc("tiles");
   await new Promise((res) => {
     images.onload = async () => {
       await Promise.all(
-        Object.keys(parts).map((key) => {
+        getKeys(parts).map((key) => {
           const part = parts[key];
           const [x, y, w, h] = part;
           const { context, createImg } = createCanvas(w, h);
@@ -164,7 +166,7 @@ const loadTileTextures = async () => {
 };
 
 // Player
-export let playerTextures: any[][][][];
+export let playerTextures: HTMLImageElement[][][][];
 
 const loadPlayerTextures = async () => {
   const imageSrcs = {
@@ -178,21 +180,21 @@ const loadPlayerTextures = async () => {
     run2: "run-2",
   };
 
-  type Images = { [Property in keyof typeof imageSrcs]: any };
+  type Images = { [Property in keyof typeof imageSrcs]: HTMLImageElement };
 
-  const rightImages: Images = { ...imageSrcs };
-  const leftImages: Images = { ...imageSrcs };
+  const rightImages: Images = { ...imageSrcs } as any;
+  const leftImages: Images = { ...imageSrcs } as any;
 
-  const loadImage = (key: string, src: string) => {
+  const loadImage = (key: keyof typeof imageSrcs, src: string) => {
     const image = new Image();
-    (rightImages as any)[key] = image;
+    rightImages[key] = image;
     image.src = getImageSrc(src);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
-  await Promise.all(Object.keys(rightImages).map((key) => loadImage(key, (rightImages as any)[key])));
-  const keys = Object.keys(rightImages);
-  await Promise.all(keys.map((key) => flipHorizontal((rightImages as any)[key], (img) => ((leftImages as any)[key] = img))));
+  const keys = getKeys(rightImages);
+  await Promise.all(keys.map((key) => loadImage(key, imageSrcs[key])));
+  await Promise.all(keys.map((key) => flipHorizontal(rightImages[key], (img) => (leftImages[key] = img))));
 
   const mainTextures = [
     [
@@ -206,14 +208,16 @@ const loadPlayerTextures = async () => {
       [rightImages.jump0, rightImages.jump1],
     ],
   ];
-  const reflectedTextures = await Promise.all(
-    mainTextures.map(async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c))))))
-  );
+  const reflectedTextures = (await Promise.all(
+    mainTextures.map(
+      async (a) => await Promise.all(a.map(async (b) => await Promise.all(b.map((c) => flipVertical(c)))))
+    )
+  )) as HTMLImageElement[][][];
 
   playerTextures = [mainTextures, reflectedTextures];
 };
 
-// Tree
+// Trees
 const imageSrcs = {
   treePalm: "tree-palm",
   treePalmSmall: "tree-palm-small",
@@ -221,21 +225,22 @@ const imageSrcs = {
   treeCactusSmall: "tree-cactus-small",
 };
 
-export type TreeTextures = { [Property in keyof typeof imageSrcs]: any };
-export type TreeTextureTypes = keyof TreeTextures;
+export type TreeTextures = { [Property in keyof typeof imageSrcs]: HTMLImageElement };
+export type TreeTextureType = keyof typeof imageSrcs;
 
 export const treeTextures: TreeTextures[] = [{}, {}] as any;
 
 const loadTreeTextures = async () => {
-  const loadImage = (key: string, src: string) => {
+  const loadImage = (key: TreeTextureType, src: string) => {
     const image = new Image();
     treeTextures[0][key] = image;
     image.src = getImageSrc(src);
     return new Promise((res) => (image.onload = () => res(image)));
   };
 
-  await Promise.all(Object.keys(imageSrcs).map((key) => loadImage(key, imageSrcs[key])));
-  await Promise.all(Object.keys(imageSrcs).map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
+  const keys = getKeys(imageSrcs);
+  await Promise.all(keys.map((key) => loadImage(key, imageSrcs[key])));
+  await Promise.all(keys.map((key) => flipVertical(treeTextures[0][key], (img) => (treeTextures[1][key] = img))));
 };
 
 // Flag
@@ -302,7 +307,7 @@ const loadSwitchTextures = async () => {
 // All
 export const loadTextures = async () => {
   await Promise.all([
-    loadCommonTextures(), //
+    loadCommonTextures(),
     loadBackgroundTextures(),
     loadTileTextures(),
     loadPlayerTextures(),

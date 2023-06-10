@@ -1,5 +1,5 @@
-import { backgroundTexture } from "../common/textures";
-import { game, SCREEN_HEIGHT, SCREEN_WIDTH } from "../configs/constants";
+import { backgroundTexture } from "@/common/textures";
+import { game, SCREEN_HEIGHT, SCREEN_WIDTH } from "@/configs/constants";
 import { Base } from "./base";
 
 export class Background extends Base {

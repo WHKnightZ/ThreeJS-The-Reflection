@@ -1,4 +1,4 @@
-import { game } from "../configs/constants";
+import { game } from "@/configs/constants";
 import { Base } from "./base";
 
 const dotsLength = {

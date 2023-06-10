@@ -1,5 +1,5 @@
-import { mappingTiles } from "../common/textures";
-import { CELL_SIZE, game } from "../configs/constants";
+import { mappingTiles } from "@/common/textures";
+import { CELL_SIZE, game } from "@/configs/constants";
 import { Base } from "./base";
 
 const points = [

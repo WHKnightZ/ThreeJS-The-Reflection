@@ -1,6 +1,6 @@
-import { switchTextures } from "../common/textures";
-import { CELL_SIZE, game, OBJ_LAYERS, SWITCH_MAX_ANIM } from "../configs/constants";
-import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
+import { switchTextures } from "@/common/textures";
+import { CELL_SIZE, game, OBJ_LAYERS, SWITCH_MAX_ANIM } from "@/configs/constants";
+import { checkIsReflected, drawCellWire, drawWire } from "@/utils/common";
 import { Obj } from "./object";
 import type { Wall } from "./wall";
 

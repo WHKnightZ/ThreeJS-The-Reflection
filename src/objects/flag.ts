@@ -1,6 +1,6 @@
-import { flagTextures } from "../common/textures";
-import { CELL_SIZE, FLAG_MAX_ANIM, game } from "../configs/constants";
-import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
+import { flagTextures } from "@/common/textures";
+import { CELL_SIZE, FLAG_MAX_ANIM, game } from "@/configs/constants";
+import { checkIsReflected, drawCellWire, drawWire } from "@/utils/common";
 import { Obj } from "./object";
 
 export class Flag extends Obj {

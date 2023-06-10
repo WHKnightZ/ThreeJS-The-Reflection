@@ -1,6 +1,6 @@
-import { wallTexture } from "../common/textures";
-import { CELL_SIZE, game, OBJ_LAYERS } from "../configs/constants";
-import { checkIsReflected, drawCellWire, drawWire } from "../utils/common";
+import { wallTexture } from "@/common/textures";
+import { CELL_SIZE, game, OBJ_LAYERS } from "@/configs/constants";
+import { checkIsReflected, drawCellWire, drawWire } from "@/utils/common";
 import { Explosion } from "./explosion";
 import { Obj } from "./object";
 

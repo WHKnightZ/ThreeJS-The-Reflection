@@ -1,11 +1,13 @@
-import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "../configs/constants";
-import type { Obj } from "../objects/object";
-import { Flag, Player, Tree, Wall, Switch } from "../objects";
-import { Map } from "../objects/map";
-import { Rectangle } from "../types";
-import { map } from "../common/map";
+import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "@/configs/constants";
+import type { Obj } from "@/objects/object";
+import { Flag, Player, Tree, Wall, Switch } from "@/objects";
+import { Map } from "@/objects/map";
+import { Rectangle } from "@/types";
+import { map } from "@/common/map";
 
 export const getAppName = () => APP_NAME;
+
+export const getKeys = Object.keys as <T extends object>(obj: T) => Array<keyof T>;
 
 export const flipHorizontal = (image: HTMLImageElement, callback?: (img: HTMLImageElement) => void) => {
   const width = image.width;
