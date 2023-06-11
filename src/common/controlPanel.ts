@@ -1,4 +1,4 @@
-import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, OBJ_LAYERS, REFLECTED_OFFSETS, SCREEN_HEIGHT } from "@/configs/constants";
+import { mapInfo, CELL_SIZE, DRTS, game, MAP_MAX_X, MAP_MAX_Y, REFLECTED_OFFSETS, SCREEN_HEIGHT, OBJS } from "@/configs/constants";
 import { Flag, Player, Switch, Tree, Wall } from "@/objects";
 import { Explosion } from "@/objects/explosion";
 import { Obj } from "@/objects/object";
@@ -229,7 +229,7 @@ class FlagSpawner extends Spawner {
   spawn() {
     if (this.checkError().error || this.isPaused) return;
 
-    const sameDrtObj = game.objs.find((obj) => obj.layer === OBJ_LAYERS.FLAG && checkIsReflected(obj.y_) === checkIsReflected(this.y));
+    const sameDrtObj = game.objs.find((obj) => obj.layer === OBJS.FLAG.layer && checkIsReflected(obj.y_) === checkIsReflected(this.y));
     if (sameDrtObj) sameDrtObj.set(this.x, this.y);
     else game.objs.push(new Flag(this.x, this.y));
     this.pause();
@@ -376,7 +376,7 @@ class RemoveSpawner extends Spawner {
       game.updateObjectDetailMore();
     }
 
-    if (removedItem.layer === OBJ_LAYERS.PLAYER) game.players = game.players.filter((p) => p.id !== removedItem.id);
+    if (removedItem.layer === OBJS.PLAYER.layer) game.players = game.players.filter((p) => p.id !== removedItem.id);
     this.pause();
   }
 }

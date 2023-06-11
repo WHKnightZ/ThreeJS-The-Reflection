@@ -1,7 +1,7 @@
-import { OBJ_LAYERS, OBJ_PRIORITIES } from "@/configs/constants";
-import { Rectangle } from "@/types";
+import { ObjType, Rectangle } from "@/types";
 import { Base } from "./base";
 import type { ObjectPlugin } from "@/plugins/plugin";
+import { OBJS } from "@/configs/constants";
 
 const ids = {};
 
@@ -14,20 +14,20 @@ export class Obj extends Base {
   clickedExtraArea: { w: number; h: number };
   plugins?: ObjectPlugin[];
 
-  constructor(createId = true) {
+  constructor(layerName: ObjType, createId = true) {
     super();
 
     this.collidedObjs = {};
-    const layer = this.constructor.name.toUpperCase();
-    this.layer = OBJ_LAYERS[layer];
-    this.priority = OBJ_PRIORITIES[layer];
+    const { name, layer, priority } = OBJS[layerName];
+    this.layer = layer;
+    this.priority = priority;
     this.clickedExtraArea = { w: 0, h: 0 };
     this.id = "#";
 
     if (createId) {
       const numId = (ids[layer] = ids[layer] || 0);
       ids[layer] += 1;
-      this.id = this.constructor.name + numId;
+      this.id = name + numId;
     }
   }
 

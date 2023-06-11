@@ -1,5 +1,5 @@
 import { wallTexture } from "@/common/textures";
-import { CELL_SIZE, game, OBJ_LAYERS } from "@/configs/constants";
+import { CELL_SIZE, game, OBJS } from "@/configs/constants";
 import { checkIsReflected, drawCellWire, drawWire } from "@/utils/common";
 import { Explosion } from "./explosion";
 import { Obj } from "./object";
@@ -10,7 +10,7 @@ export class Wall extends Obj {
   isDestroyed: boolean;
 
   constructor(x: number, y: number, createId = true) {
-    super(createId);
+    super("WALL", createId);
     this.set(x, y);
     this.isReflected = !!checkIsReflected(y);
     this.isExploding = false;
@@ -56,7 +56,7 @@ export class Wall extends Obj {
   }
 
   onSelectLinkedObj(obj: Obj) {
-    if (obj.layer !== OBJ_LAYERS.SWITCH) return;
+    if (obj.layer !== OBJS.SWITCH.layer) return;
     if (this.linkedObjs.includes(obj)) return;
 
     obj.linkedObjs.push(this);

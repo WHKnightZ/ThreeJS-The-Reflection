@@ -12,7 +12,7 @@ export class Tree extends Obj {
   offset: number;
 
   constructor(type: TreeTextureType, x: number, y: number, createId = true) {
-    super(createId);
+    super("TREE", createId);
     this.type = type;
     this.set(x, y);
     this.offset = treeOffsets[type];

@@ -1,6 +1,7 @@
 import type { Base } from "@/objects/base";
 import type { Obj } from "@/objects/object";
 import type { Player } from "@/objects/player";
+import { ObjType } from "@/types";
 
 export { default as mapInfo } from "@/maps/1.json";
 
@@ -58,24 +59,14 @@ export const game: {
   updateObjectDetailMore: () => void;
 } = {} as any;
 
-export const OBJ_LAYERS = {
-  PLAYER: 0,
-  TREE: 1, // Cây, chỉ để trang trí
-  FLAG: 2, // Cờ, khi cả 2 player đâm vào thì qua màn
-  WALL: 3, // Tường chắn, sẽ biến mất khi đâm vào Switch
-  SWITCH: 4, // Công tắc làm tường biến mất
-  SPIKE: 5, // Gai xương rồng, đâm vào sẽ chết
-  BOX: 6, // Hộp để đẩy xuống nước, có khả năng nổi trên mặt nước
-};
-
-export const OBJ_PRIORITIES = {
-  PLAYER: 3,
-  TREE: 0,
-  FLAG: 1,
-  WALL: 4,
-  SWITCH: 2,
-  SPIKE: 0,
-  BOX: 0,
+export const OBJS: { [key in ObjType]: { name: string; layer: number; priority: number } } = {
+  PLAYER: { name: "Player", layer: 0, priority: 3 },
+  TREE: { name: "Tree", layer: 1, priority: 0 },
+  FLAG: { name: "Flag", layer: 2, priority: 1 },
+  WALL: { name: "Wall", layer: 3, priority: 4 },
+  SWITCH: { name: "Switch", layer: 4, priority: 2 },
+  SPIKE: { name: "Spike", layer: 5, priority: 0 },
+  BOX: { name: "Box", layer: 6, priority: 0 },
 };
 
 export const COLLISION_MATRIX = [

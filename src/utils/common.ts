@@ -1,4 +1,4 @@
-import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJ_LAYERS } from "@/configs/constants";
+import { APP_NAME, mapInfo, CELL_SIZE, COLLISION_MATRIX, game, MAP_MAX_Y, OBJS } from "@/configs/constants";
 import type { Obj } from "@/objects/object";
 import { Flag, Player, Tree, Wall, Switch } from "@/objects";
 import { Map } from "@/objects/map";
@@ -151,9 +151,9 @@ export const importMap = () => {
 };
 
 export const exportMap = () => {
-  const trees = <Tree[]>game.objs.filter((obj) => obj.layer === OBJ_LAYERS.TREE);
+  const trees = <Tree[]>game.objs.filter((obj) => obj.layer === OBJS.TREE.layer);
   const players = game.players;
-  const flags = <Flag[]>game.objs.filter((obj) => obj.layer === OBJ_LAYERS.FLAG);
+  const flags = <Flag[]>game.objs.filter((obj) => obj.layer === OBJS.FLAG.layer);
 
   const data = {
     baseMap: mapInfo.baseMap,

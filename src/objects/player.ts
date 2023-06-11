@@ -1,5 +1,5 @@
 import { playerTextures } from "@/common/textures";
-import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, OBJ_LAYERS, offsetFactors } from "@/configs/constants";
+import { CELL_SIZE, DRTS, mapInfo, STTS, VELOCITY_DEFAULT, VELOCITY_MIN, game, offsetFactors, OBJS } from "@/configs/constants";
 import { checkIsReflected } from "@/utils/common";
 import { Explosion } from "./explosion";
 import { Obj } from "./object";
@@ -29,7 +29,7 @@ export class Player extends Obj {
   };
 
   constructor(x: number, y: number, drt: number = DRTS.RIGHT, createId = true) {
-    super(createId);
+    super("PLAYER", createId);
 
     this.set(x, y, drt);
   }
@@ -206,11 +206,11 @@ export class Player extends Obj {
 
   onEnterObject(obj: Obj): void {
     switch (obj.layer) {
-      case OBJ_LAYERS.FLAG:
+      case OBJS.FLAG.layer:
         (obj as Flag).raise();
         break;
 
-      case OBJ_LAYERS.SWITCH:
+      case OBJS.SWITCH.layer:
         const theSwitch = obj as Switch;
         theSwitch.switch();
 
@@ -220,7 +220,7 @@ export class Player extends Obj {
 
   onLeaveObject(obj: Obj): void {
     switch (obj.layer) {
-      case OBJ_LAYERS.FLAG:
+      case OBJS.FLAG.layer:
         (obj as Flag).lower();
         break;
     }
